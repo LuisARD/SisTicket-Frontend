@@ -1,0 +1,548 @@
+================================================================================
+  RESUMEN COMPLETO DEL BACKEND SISTICKET - PARA DESARROLLO FRONTEND
+================================================================================
+
+INFORMACIÓN DEL PROYECTO
+================================================================================
+Nombre: SisTicket - Sistema de Solicitudes Internas (Mesa de Servicios)
+Arquitectura: Clean Architecture (Onion) con .NET 10
+Autenticación: JWT con cookies HTTP-Only
+Base de Datos: SQL Server con Entity Framework Core
+Repositorio: https://github.com/LuisARD/SisTicket-Backend
+Branch: dev
+
+
+CONFIGURACIÓN DE LA API
+================================================================================
+
+URLs Base:
+----------
+Desarrollo: http://localhost:5000 o https://localhost:5001
+Swagger:    http://localhost:5000
+
+CORS Configurado:
+-----------------
+Frontend permitidos:
+  - http://localhost:3000  (React/Next.js)
+  - http://localhost:4200  (Angular)
+
+IMPORTANTE: Todos los requests deben incluir:
+  credentials: 'include'  // Para enviar cookies HTTP-Only
+
+
+AUTENTICACIÓN JWT
+================================================================================
+
+Login:
+------
+POST /api/auth/login
+Content-Type: application/json
+
+Request Body:
+{
+  "nombreUsuario": "cesar",
+  "password": "cesar"
+}
+
+Response:
+{
+  "id": 1,
+  "nombreUsuario": "cesar",
+  "nombre": "Cesar",
+  "apellido": "Motos",
+  "email": "cesar@gmail.com",
+  "rol": "SuperAdmin",
+  "area": "Tecnología de la Información",
+  "token": "Token almacenado en cookie HTTP-Only"
+}
+
+Cookie Establecida:
+-------------------
+Nombre: AuthToken
+HttpOnly: true (no accesible por JavaScript)
+Secure: true (solo HTTPS en producción)
+SameSite: Strict
+Expiración: 1 hora
+
+Otros Endpoints:
+----------------
+GET  /api/auth/me      - Obtener usuario actual
+POST /api/auth/logout  - Cerrar sesión
+
+
+ROLES Y PERMISOS
+================================================================================
+
+Jerarquía de Roles:
+-------------------
+SuperAdmin (4) > Admin (3) > Gestor (2) > Solicitante (1)
+
+Usuarios de Prueba:
+-------------------
+| Usuario  | Password | Rol         | Área  |
+|----------|----------|-------------|-------|
+| cesar    | cesar    | SuperAdmin  | TI    |
+| admin    | password | Admin       | TI    |
+| gestor   | password | Gestor      | TI    |
+| usuario  | password | Solicitante | RRHH  |
+
+Matriz de Permisos:
+-------------------
+Recurso                    | Solicitante | Gestor    | Admin | SuperAdmin
+---------------------------|-------------|-----------|-------|------------
+Usuarios (CRUD)            | ?          | ?        | ?    | ?
+Catálogos (Lectura)        | ?          | ?        | ?    | ?
+Catálogos (Escritura)      | ?          | ?        | ?    | ?
+Crear Solicitudes          | ?          | ?        | ?    | ?
+Ver Solicitudes            | Solo propias| De su área| Todas | Todas
+Editar Solicitudes         | Propias*    | ?        | ?    | ?
+Asignar Gestor             | ?          | ?        | ?    | ?
+Cambiar Estado             | ?          | Asignadas | ?    | ?
+Crear Comentarios          | ?          | Su área   | ?    | ?
+Ver Comentarios            | Propias     | Su área   | ?    | ?
+
+* Solo si está en estado "Nueva" y sin gestor asignado
+
+
+ENDPOINTS DE LA API
+================================================================================
+
+1. AUTENTICACIÓN (/api/auth)
+----------------------------
+POST /api/auth/login
+  Body: { nombreUsuario, password }
+  Response: { id, nombreUsuario, nombre, apellido, email, rol, area, token }
+
+POST /api/auth/logout
+
+GET /api/auth/me
+  Response: { id, nombreUsuario, nombre, apellido, email, rol, area }
+
+
+2. USUARIOS (/api/usuarios) - SOLO SuperAdmin
+----------------------------------------------
+GET /api/usuarios
+  Response: [{ id, nombreUsuario, nombre, apellido, email, rol, area, activo }]
+
+GET /api/usuarios/{id}
+
+GET /api/usuarios/area/{areaId}
+
+GET /api/usuarios/gestores/area/{areaId}
+
+POST /api/usuarios
+  Body: {
+    nombreUsuario: string,
+    nombre: string,
+    apellido: string,
+    email: string,
+    password: string,
+    rol: number,  // 1=Solicitante, 2=Gestor, 3=Admin, 4=SuperAdmin
+    areaId: number
+  }
+
+PUT /api/usuarios/{id}
+  Body: { /* solo campos a actualizar */ }
+
+DELETE /api/usuarios/{id}
+
+
+3. CATÁLOGOS (/api/catalogos)
+------------------------------
+
+ÁREAS:
+------
+GET /api/catalogos/areas
+  Response: [{ id, nombre, descripcion, fechaCreacion, activo }]
+
+GET /api/catalogos/areas/{id}
+
+POST /api/catalogos/areas  (Admin/SuperAdmin)
+  Body: { nombre, descripcion? }
+
+PUT /api/catalogos/areas/{id}  (Admin/SuperAdmin)
+  Body: { nombre?, descripcion? }
+
+DELETE /api/catalogos/areas/{id}  (Admin/SuperAdmin)
+
+PRIORIDADES:
+------------
+GET /api/catalogos/prioridades
+GET /api/catalogos/prioridades/{id}
+POST /api/catalogos/prioridades  (Admin/SuperAdmin)
+  Body: { nombre, nivel, descripcion? }
+PUT /api/catalogos/prioridades/{id}  (Admin/SuperAdmin)
+DELETE /api/catalogos/prioridades/{id}  (Admin/SuperAdmin)
+
+TIPOS DE SOLICITUD:
+-------------------
+GET /api/catalogos/tipos-solicitud
+GET /api/catalogos/tipos-solicitud/{id}
+POST /api/catalogos/tipos-solicitud  (Admin/SuperAdmin)
+  Body: { nombre, descripcion? }
+PUT /api/catalogos/tipos-solicitud/{id}  (Admin/SuperAdmin)
+DELETE /api/catalogos/tipos-solicitud/{id}  (Admin/SuperAdmin)
+
+
+4. SOLICITUDES (/api/solicitudes)
+----------------------------------
+GET /api/solicitudes  (filtrado por rol)
+  Response: [{
+    id, numeroSolicitud, titulo, descripcion, estado,
+    fechaCreacion, fechaActualizacion,
+    solicitanteId, solicitanteNombre,
+    gestorAsignadoId?, gestorAsignadoNombre?,
+    tipoSolicitud: { id, nombre },
+    prioridad: { id, nombre, nivel },
+    area: { id, nombre }
+  }]
+
+GET /api/solicitudes/{id}
+
+GET /api/solicitudes/solicitante/{solicitanteId}  (Admin/SuperAdmin)
+
+GET /api/solicitudes/gestor/{gestorId}  (Gestor/Admin/SuperAdmin)
+
+GET /api/solicitudes/filtrar?estado={estado}&prioridadId={id}&fechaDesde={fecha}&fechaHasta={fecha}
+  (Admin/SuperAdmin)
+
+POST /api/solicitudes
+  Body: {
+    titulo: string,
+    descripcion: string,
+    tipoSolicitudId: number,
+    prioridadId: number,
+    areaId: number
+  }
+
+PUT /api/solicitudes/{id}
+  Body: { titulo?, descripcion?, tipoSolicitudId?, prioridadId?, areaId? }
+
+POST /api/solicitudes/{id}/asignar-gestor  (Admin/SuperAdmin)
+  Body: { gestorId: number }
+
+POST /api/solicitudes/{id}/cambiar-estado  (Gestor/Admin/SuperAdmin)
+  Body: { estado: number }
+  Estados: 1=Nueva, 2=EnProceso, 3=Resuelta, 4=Cerrada, 5=Cancelada
+
+DELETE /api/solicitudes/{id}  (Admin/SuperAdmin)
+
+
+5. COMENTARIOS (/api/solicitudes/{solicitudId}/comentarios)
+------------------------------------------------------------
+GET /api/solicitudes/{solicitudId}/comentarios
+  Response: [{
+    id, texto, fechaCreacion,
+    usuario: { id, nombreUsuario, nombre, apellido }
+  }]
+
+POST /api/solicitudes/{solicitudId}/comentarios  (Gestor/Admin/SuperAdmin)
+  Body: { texto: string }
+  IMPORTANTE: Solicitantes solo pueden VER comentarios, NO crearlos
+
+DELETE /api/solicitudes/{solicitudId}/comentarios/{comentarioId}
+  (Autor/Admin/SuperAdmin)
+
+
+DATOS INICIALES (SEEDS)
+================================================================================
+
+Áreas:
+------
+1. Tecnología de la Información
+2. Recursos Humanos
+3. Finanzas
+4. Operaciones
+5. Administración
+
+Prioridades:
+------------
+1. Baja (Nivel 1)
+2. Media (Nivel 2)
+3. Alta (Nivel 3)
+4. Crítica (Nivel 4)
+
+Tipos de Solicitud:
+-------------------
+1. Soporte Técnico
+2. Mantenimiento
+3. Nuevo Requerimiento
+4. Incidencia
+5. Consulta
+6. Acceso y Permisos
+
+
+ENUMS Y CONSTANTES
+================================================================================
+
+Rol:
+----
+enum Rol {
+  Solicitante = 1,
+  Gestor = 2,
+  Admin = 3,
+  SuperAdmin = 4
+}
+
+EstadoSolicitud:
+----------------
+enum EstadoSolicitud {
+  Nueva = 1,
+  EnProceso = 2,
+  Resuelta = 3,
+  Cerrada = 4,
+  Cancelada = 5
+}
+
+
+CONFIGURACIÓN FRONTEND
+================================================================================
+
+Ejemplo con Axios (React/Vue):
+-------------------------------
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api',
+  withCredentials: true,  // ? IMPORTANTE para cookies
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Login
+const login = async (nombreUsuario, password) => {
+  const response = await api.post('/auth/login', {
+    nombreUsuario,
+    password
+  });
+  return response.data;
+};
+
+// Obtener solicitudes
+const getSolicitudes = async () => {
+  const response = await api.get('/solicitudes');
+  return response.data;
+};
+
+// Crear solicitud
+const createSolicitud = async (data) => {
+  const response = await api.post('/solicitudes', data);
+  return response.data;
+};
+
+
+Ejemplo con Fetch API:
+-----------------------
+// Login
+const login = async (nombreUsuario, password) => {
+  const response = await fetch('http://localhost:5000/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombreUsuario, password }),
+    credentials: 'include'  // ? IMPORTANTE
+  });
+  return await response.json();
+};
+
+// Obtener solicitudes
+const getSolicitudes = async () => {
+  const response = await fetch('http://localhost:5000/api/solicitudes', {
+    credentials: 'include'  // ? IMPORTANTE
+  });
+  return await response.json();
+};
+
+
+MANEJO DE ERRORES
+================================================================================
+
+Respuestas de Error:
+--------------------
+{
+  "statusCode": 400,
+  "message": "Descripción del error",
+  "errors": {  // Solo en ValidationException
+    "campo": ["Error 1", "Error 2"]
+  },
+  "details": "Stack trace (solo en desarrollo)"
+}
+
+Códigos HTTP:
+-------------
+200 - OK - Exitoso
+201 - Created - Recurso creado
+204 - No Content - Eliminado exitosamente
+400 - Bad Request - Validación fallida
+401 - Unauthorized - No autenticado
+403 - Forbidden - Sin permisos
+404 - Not Found - Recurso no encontrado
+500 - Internal Server Error - Error del servidor
+
+
+REGLAS DE NEGOCIO IMPORTANTES
+================================================================================
+
+Solicitudes:
+------------
+? Todos pueden crear solicitudes
+? Solo el solicitante puede editar su solicitud (si está Nueva y sin gestor)
+? Solo Admin/SuperAdmin pueden asignar gestores
+? Solo Gestor/Admin/SuperAdmin pueden cambiar estados
+? Solicitantes solo ven sus propias solicitudes
+? Gestores solo ven solicitudes de su área
+? Admin/SuperAdmin ven todas
+
+Comentarios:
+------------
+? Solicitantes NO pueden comentar (solo ver)
+? Gestores pueden comentar en solicitudes de su área
+? Admin/SuperAdmin pueden comentar en cualquiera
+? Solo el autor, Admin o SuperAdmin pueden eliminar comentarios
+
+Usuarios:
+---------
+? Solo SuperAdmin puede gestionar usuarios (CRUD completo)
+? Passwords se hashean con BCrypt
+? Emails y nombres de usuario deben ser únicos
+
+
+COMPONENTES SUGERIDOS PARA EL FRONTEND
+================================================================================
+
+Páginas:
+--------
+/login                    ? Login
+/dashboard               ? Dashboard principal
+/solicitudes             ? Lista de solicitudes
+/solicitudes/nueva       ? Crear solicitud
+/solicitudes/{id}        ? Detalle de solicitud
+/usuarios                ? Lista de usuarios (Solo SuperAdmin)
+/usuarios/nuevo          ? Crear usuario (Solo SuperAdmin)
+/catalogos/areas         ? Gestión de áreas (Admin/SuperAdmin)
+/catalogos/prioridades   ? Gestión de prioridades (Admin/SuperAdmin)
+/catalogos/tipos         ? Gestión de tipos (Admin/SuperAdmin)
+/perfil                  ? Perfil del usuario actual
+
+Componentes Recomendados:
+--------------------------
+- <ProtectedRoute> - Proteger rutas por rol
+- <SolicitudCard> - Card de solicitud
+- <ComentarioList> - Lista de comentarios
+- <SolicitudForm> - Formulario de solicitud
+- <SolicitudFilter> - Filtros avanzados
+- <UserBadge> - Badge con nombre y rol
+- <EstadoBadge> - Badge de estado de solicitud
+- <PrioridadBadge> - Badge de prioridad
+
+
+VALIDACIONES EN FRONTEND
+================================================================================
+
+Solicitud:
+----------
+{
+  titulo: required, minLength: 5, maxLength: 200
+  descripcion: required, minLength: 10
+  tipoSolicitudId: required
+  prioridadId: required
+  areaId: required
+}
+
+Usuario:
+--------
+{
+  nombreUsuario: required, minLength: 3, maxLength: 50, unique
+  nombre: required, minLength: 2, maxLength: 100
+  apellido: required, minLength: 2, maxLength: 100
+  email: required, email, unique
+  password: required, minLength: 6 (solo en create)
+  rol: required, oneOf: [1, 2, 3, 4]
+  areaId: optional
+}
+
+Comentario:
+-----------
+{
+  texto: required, minLength: 5, maxLength: 1000
+}
+
+
+FLUJOS TÍPICOS
+================================================================================
+
+Flujo: Crear Solicitud (Solicitante)
+-------------------------------------
+1. Login ? POST /api/auth/login
+2. Ver catálogos ? GET /api/catalogos/*
+3. Crear solicitud ? POST /api/solicitudes
+4. Ver mis solicitudes ? GET /api/solicitudes
+5. Ver detalle ? GET /api/solicitudes/{id}
+6. Ver comentarios ? GET /api/solicitudes/{id}/comentarios
+
+Flujo: Gestionar Solicitud (Gestor)
+------------------------------------
+1. Login ? POST /api/auth/login
+2. Ver solicitudes de mi área ? GET /api/solicitudes
+3. Abrir solicitud ? GET /api/solicitudes/{id}
+4. Cambiar estado ? POST /api/solicitudes/{id}/cambiar-estado
+5. Agregar comentario ? POST /api/solicitudes/{id}/comentarios
+
+Flujo: Administrar (Admin/SuperAdmin)
+--------------------------------------
+1. Login ? POST /api/auth/login
+2. Ver todas las solicitudes ? GET /api/solicitudes
+3. Asignar gestor ? POST /api/solicitudes/{id}/asignar-gestor
+4. Gestionar catálogos ? POST/PUT/DELETE /api/catalogos/*
+5. (SuperAdmin) Gestionar usuarios ? POST/PUT/DELETE /api/usuarios
+
+
+CHECKLIST PARA EL FRONTEND
+================================================================================
+[ ] Configurar withCredentials: true en todas las peticiones
+[ ] Implementar interceptor para manejar 401 (redirect a login)
+[ ] Implementar interceptor para manejar 403 (mensaje de permisos)
+[ ] Guardar datos del usuario en estado global (Redux/Context)
+[ ] Proteger rutas según rol del usuario
+[ ] Mostrar/ocultar elementos según permisos
+[ ] Validar formularios antes de enviar
+[ ] Manejar estados de carga (loading)
+[ ] Mostrar mensajes de éxito/error
+[ ] Implementar logout que llame a /api/auth/logout
+
+
+NOTAS ADICIONALES
+================================================================================
+
+Seguridad:
+----------
+- El token JWT se almacena en cookies HTTP-Only (más seguro que localStorage)
+- Las cookies tienen el flag Secure en producción (solo HTTPS)
+- SameSite=Strict previene ataques CSRF
+- Passwords hasheados con BCrypt
+- Validación de issuer y audience en JWT
+
+Actualización Parcial:
+----------------------
+Los endpoints PUT soportan actualización parcial:
+- Solo se actualizan los campos enviados
+- Los campos omitidos se mantienen sin cambios
+- Enviar null actualiza el campo a null (si el campo lo permite)
+
+CORS:
+-----
+La API ya tiene CORS configurado para:
+- http://localhost:3000 (React/Next.js)
+- http://localhost:4200 (Angular)
+Si necesitas otro origin, debe agregarse en Program.cs
+
+Token Expiración:
+-----------------
+- Access Token (JWT): 1 hora
+- Refresh Token: 7 días (pendiente de implementar)
+
+================================================================================
+Generado: 2025
+Proyecto: SisTicket Backend
+Repositorio: https://github.com/LuisARD/SisTicket-Backend
+================================================================================
