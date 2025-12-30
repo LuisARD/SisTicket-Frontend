@@ -114,17 +114,6 @@
 
       <!-- Tabla de Solicitudes -->
       <SolicitudesTable :solicitudes="solicitudesFiltradas" />
-
-      <!-- Botón Crear Nueva Solicitud -->
-      <RouterLink
-        to="/solicitudes/nueva"
-        class="fixed bottom-24 right-4 sm:right-8 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg transition transform hover:scale-110"
-        title="Crear nueva solicitud"
-      >
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-      </RouterLink>
     </div>
 
     <!-- Bottom NavBar -->

@@ -1,7 +1,11 @@
 import axios from 'axios'
 
+// Detectar si estamos en desarrollo
+const isDevelopment = import.meta.env.DEV
+const backendUrl = isDevelopment ? 'http://localhost:5146/api' : import.meta.env.VITE_API_URL || '/api'
+
 const api = axios.create({
-  baseURL: 'http://localhost:5146/api',
+  baseURL: backendUrl,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'

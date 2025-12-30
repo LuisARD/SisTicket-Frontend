@@ -5,18 +5,11 @@
         <!-- Logo y Nombre -->
         <div class="flex items-center gap-2 sm:gap-3">
           <div class="flex-shrink-0 p-2 bg-indigo-100 rounded-lg">
-            <svg
-              class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-              <path
-                fill-rule="evenodd"
-                d="M4 5a2 2 0 012-2 1 1 0 000-2 4 4 0 00-4 4v10a4 4 0 004 4h12a4 4 0 004-4V5a4 4 0 00-4-4 1 1 0 000 2 2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"
-                clip-rule="evenodd"
-              />
-            </svg>
+            <img 
+              src="@/assets/icons/Header-solicitudes.svg" 
+              alt="Sistema de Solicitudes" 
+              class="w-6 h-6 sm:w-7 sm:h-7"
+            />
           </div>
           <h1 class="text-lg sm:text-xl font-bold text-gray-800 hidden sm:block">
             Sistema de Solicitudes
@@ -26,9 +19,16 @@
         <!-- Info Usuario y Botón -->
         <div class="flex items-center gap-3 sm:gap-6">
           <div class="text-right hidden sm:block">
-            <p class="text-sm sm:text-base font-semibold text-gray-800">
-              {{ user?.nombre }}
-            </p>
+            <div class="flex items-center justify-end gap-2 mb-1">
+                            <img 
+                src="@/assets/icons/SesionNombre.svg" 
+                alt="Usuario" 
+                class="w-5 h-5"
+              />
+              <p class="text-sm sm:text-base font-semibold text-gray-800">
+                {{ user?.nombre }}
+              </p>
+            </div>
             <p class="text-xs sm:text-sm text-gray-500">
               {{ user?.rol }}
             </p>

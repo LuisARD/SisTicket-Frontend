@@ -5,21 +5,13 @@
       <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12">
         <!-- Header -->
         <div class="text-center mb-8">
-          <!-- Icono de Usuario -->
+          <!-- Icono de Login -->
           <div class="flex justify-center mb-4">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 rounded-full flex items-center justify-center">
-              <svg
-                class="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
+            <img 
+              src="@/assets/icons/login.svg" 
+              alt="Sistema de Solicitudes" 
+              class="w-16 h-16 sm:w-20 sm:h-20"
+            />
           </div>
 
           <!-- Puntos decorativos -->
