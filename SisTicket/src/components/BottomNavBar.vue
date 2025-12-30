@@ -110,7 +110,7 @@ export default {
     const route = useRoute()
 
     const isActive = computed(() => (path) => {
-      return route.path.includes(path)
+      return route.path === path || route.path.startsWith(path + '/')
     })
 
     return {

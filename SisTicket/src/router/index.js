@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import SolicitudesView from '../views/SolicitudesView.vue'
+import SolicitudDetalleView from '../views/SolicitudDetalleView.vue'
+import MisSolicitudesView from '../views/MisSolicitudesView.vue'
 import { authStore } from '../stores/authStore'
 
 const routes = [
@@ -28,6 +30,18 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/solicitudes/:id',
+    name: 'SolicitudDetalle',
+    component: SolicitudDetalleView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/mis-solicitudes',
+    name: 'MisSolicitudes',
+    component: MisSolicitudesView,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/catalogos',
     name: 'Catalogos',
     redirect: '/catalogos/areas',
@@ -36,12 +50,6 @@ const routes = [
   {
     path: '/bandeja-area',
     name: 'BandejaArea',
-    redirect: '/solicitudes',
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/mis-solicitudes',
-    name: 'MisSolicitudes',
     redirect: '/solicitudes',
     meta: { requiresAuth: true }
   },

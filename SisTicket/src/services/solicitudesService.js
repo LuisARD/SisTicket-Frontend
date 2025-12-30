@@ -100,6 +100,47 @@ const solicitudesService = {
       console.error('Error creando comentario:', error.message)
       throw error
     }
+  },
+
+  getSolicitudesDetalleById: async (id) => {
+    try {
+      const response = await api.get(`/Solicitudes/${id}`)
+      return response
+    } catch (error) {
+      console.error('Error obteniendo detalle de solicitud:', error.message)
+      throw error
+    }
+  },
+
+  getGestoresDisponibles: async () => {
+    try {
+      const response = await api.get('/Usuarios/gestores')
+      return response
+    } catch (error) {
+      console.error('Error obteniendo gestores:', error.message)
+      throw error
+    }
+  },
+
+  getMisSolicitudes: async (filtros = {}) => {
+    try {
+      const params = new URLSearchParams()
+
+      if (filtros.estado) params.append('estado', filtros.estado)
+      if (filtros.prioridadId) params.append('prioridadId', filtros.prioridadId)
+      if (filtros.fechaDesde) params.append('fechaDesde', filtros.fechaDesde)
+      if (filtros.fechaHasta) params.append('fechaHasta', filtros.fechaHasta)
+
+      const queryString = params.toString()
+      const url = queryString ? `/Solicitudes/mis-solicitudes?${queryString}` : '/Solicitudes/mis-solicitudes'
+
+      const response = await api.get(url)
+      console.log('Mis solicitudes obtenidas:', response.data)
+      return response
+    } catch (error) {
+      console.error('Error obteniendo mis solicitudes:', error.message)
+      throw error
+    }
   }
 }
 
