@@ -101,47 +101,26 @@
 
 <script>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { authStore } from '../stores/authStore'
+import { useLogin } from '../composables/useLogin'
 
 export default {
   name: 'LoginView',
   setup() {
-    const router = useRouter()
     const formData = ref({
       nombreUsuario: '',
       password: ''
     })
-    const isLoading = ref(false)
-    const error = ref(null)
+    const { login, isLoading, error, clearError } = useLogin()
 
     const handleLogin = async () => {
-      error.value = null
-
-      if (!formData.value.nombreUsuario || !formData.value.password) {
-        error.value = 'Por favor complete todos los campos'
-        return
-      }
-
-      isLoading.value = true
-      try {
-        await authStore.login(
-          formData.value.nombreUsuario,
-          formData.value.password
-        )
-        // Redirigir al dashboard después del login exitoso
-        router.push('/dashboard')
-      } catch (err) {
-        error.value = authStore.error || 'Error al iniciar sesión'
-      } finally {
-        isLoading.value = false
-      }
+      await login(formData.value.nombreUsuario, formData.value.password)
     }
 
     return {
       formData,
       isLoading,
       error,
+      clearError,
       handleLogin
     }
   }

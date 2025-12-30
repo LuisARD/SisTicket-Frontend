@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import SolicitudesView from '../views/SolicitudesView.vue'
 import { authStore } from '../stores/authStore'
 
 const routes = [
   {
     path: '/',
-    redirect: '/dashboard'
+    redirect: '/solicitudes'
   },
   {
     path: '/login',
@@ -18,6 +19,36 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: DashboardView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/solicitudes',
+    name: 'Solicitudes',
+    component: SolicitudesView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/catalogos',
+    name: 'Catalogos',
+    redirect: '/catalogos/areas',
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/bandeja-area',
+    name: 'BandejaArea',
+    redirect: '/solicitudes',
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/mis-solicitudes',
+    name: 'MisSolicitudes',
+    redirect: '/solicitudes',
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/usuarios',
+    name: 'Usuarios',
+    redirect: '/usuarios/lista',
     meta: { requiresAuth: true }
   }
 ]
@@ -34,7 +65,7 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !authStore.isAuthenticated) {
     next('/login')
   } else if (to.path === '/login' && authStore.isAuthenticated) {
-    next('/dashboard')
+    next('/solicitudes')
   } else {
     next()
   }
