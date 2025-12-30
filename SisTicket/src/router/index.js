@@ -4,6 +4,7 @@ import DashboardView from '../views/DashboardView.vue'
 import SolicitudesView from '../views/SolicitudesView.vue'
 import SolicitudDetalleView from '../views/SolicitudDetalleView.vue'
 import MisSolicitudesView from '../views/MisSolicitudesView.vue'
+import UsuariosView from '../views/UsuariosView.vue'
 import { authStore } from '../stores/authStore'
 
 const routes = [
@@ -56,7 +57,7 @@ const routes = [
   {
     path: '/usuarios',
     name: 'Usuarios',
-    redirect: '/usuarios/lista',
+    component: UsuariosView,
     meta: { requiresAuth: true }
   }
 ]
