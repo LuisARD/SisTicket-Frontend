@@ -1,3 +1,9 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
 # Logs
 logs
 *.log
@@ -7,30 +13,41 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.DS_Store
+# Build output
 dist
 dist-ssr
-coverage
-*.local
+build
+out
 
-# Editor directories and files
+# Testing
+coverage
+__screenshots__/
+
+# IDE & Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.iml
 
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Cache
+.eslintcache
 *.tsbuildinfo
 
-.eslintcache
-
-# Cypress
+# Testing
 /cypress/videos/
 /cypress/screenshots/
 
-# Vitest
-__screenshots__/
+# OS specific
+.DS_Store
+Thumbs.db
