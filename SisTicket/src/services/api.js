@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'http://localhost:5146/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
@@ -11,7 +11,7 @@ const api = axios.create({
 // Interceptor de requests
 api.interceptors.request.use(
   config => {
-    console.log('Request:', config.method?.toUpperCase(), config.url)
+    console.log('Request:', config.method?.toUpperCase(), config.baseURL + config.url)
     return config
   },
   error => Promise.reject(error)
