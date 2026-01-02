@@ -127,4 +127,3 @@ const isAdmin = computed(() => {
   return rol === 'Admin' || rol === 'SuperAdmin' || rol === 3 || rol === 4
 })
 </script>
-</script>

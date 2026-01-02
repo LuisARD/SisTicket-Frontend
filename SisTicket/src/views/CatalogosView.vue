@@ -134,6 +134,7 @@
       :item="modalTipo.item"
       tipo="Tipo de Solicitud"
       :mostrar-descripcion="true"
+      :areas="areasOrdenadas"
       @close="cerrarModalTipo"
       @success="handleModalTipoSuccess"
     />
@@ -151,11 +152,8 @@ import { useNotification } from '../composables/useNotification'
 import { authStore } from '../stores/authStore'
 
 const { mostrarNotificacion } = useNotification()
+const catalogos = useCatalogos()
 const {
-  areas,
-  prioridades,
-  tiposSolicitud,
-  isLoading,
   crearArea,
   crearPrioridad,
   crearTipoSolicitud,
@@ -165,7 +163,7 @@ const {
   eliminarArea: deleteArea,
   eliminarPrioridad: deletePrioridad,
   eliminarTipoSolicitud: deleteTipoSolicitud
-} = useCatalogos()
+} = catalogos
 
 const activeTab = ref('areas')
 
@@ -206,15 +204,15 @@ const modalTipo = ref({ isOpen: false, item: null })
 
 // Ordenar por ID
 const areasOrdenadas = computed(() => {
-  return [...areas.value].sort((a, b) => a.id - b.id)
+  return [...catalogos.areas.value].sort((a, b) => a.id - b.id)
 })
 
 const prioridadesOrdenadas = computed(() => {
-  return [...prioridades.value].sort((a, b) => a.id - b.id)
+  return [...catalogos.prioridades.value].sort((a, b) => a.id - b.id)
 })
 
 const tiposSolicitudOrdenados = computed(() => {
-  return [...tiposSolicitud.value].sort((a, b) => a.id - b.id)
+  return [...catalogos.tiposSolicitud.value].sort((a, b) => a.id - b.id)
 })
 
 // ===== ÁREAS =====
@@ -233,12 +231,19 @@ const cerrarModalArea = () => {
 }
 
 const handleModalAreaSuccess = async ({ action, data }) => {
-  if (action === 'create') {
-    await crearArea(data)
-  } else {
-    await actualizarArea(modalArea.value.item.id, data)
+  try {
+    if (action === 'create') {
+      await crearArea(data)
+    } else {
+      await actualizarArea(modalArea.value.item.id, data)
+    }
+    // Esperar un poco para asegurar que los datos se actualizaron
+    await new Promise(resolve => setTimeout(resolve, 300))
+  } catch (error) {
+    console.error('Error en operación de área:', error)
+  } finally {
+    cerrarModalArea()
   }
-  cerrarModalArea()
 }
 
 const eliminarArea = async (id) => {
@@ -264,12 +269,19 @@ const cerrarModalPrioridad = () => {
 }
 
 const handleModalPrioridadSuccess = async ({ action, data }) => {
-  if (action === 'create') {
-    await crearPrioridad(data)
-  } else {
-    await actualizarPrioridad(modalPrioridad.value.item.id, data)
+  try {
+    if (action === 'create') {
+      await crearPrioridad(data)
+    } else {
+      await actualizarPrioridad(modalPrioridad.value.item.id, data)
+    }
+    // Esperar un poco para asegurar que los datos se actualizaron
+    await new Promise(resolve => setTimeout(resolve, 300))
+  } catch (error) {
+    console.error('Error en operación de prioridad:', error)
+  } finally {
+    cerrarModalPrioridad()
   }
-  cerrarModalPrioridad()
 }
 
 const eliminarPrioridad = async (id) => {
@@ -295,12 +307,19 @@ const cerrarModalTipo = () => {
 }
 
 const handleModalTipoSuccess = async ({ action, data }) => {
-  if (action === 'create') {
-    await crearTipoSolicitud(data)
-  } else {
-    await actualizarTipoSolicitud(modalTipo.value.item.id, data)
+  try {
+    if (action === 'create') {
+      await crearTipoSolicitud(data)
+    } else {
+      await actualizarTipoSolicitud(modalTipo.value.item.id, data)
+    }
+    // Esperar un poco para asegurar que los datos se actualizaron
+    await new Promise(resolve => setTimeout(resolve, 300))
+  } catch (error) {
+    console.error('Error en operación de tipo de solicitud:', error)
+  } finally {
+    cerrarModalTipo()
   }
-  cerrarModalTipo()
 }
 
 const eliminarTipoSolicitud = async (id) => {

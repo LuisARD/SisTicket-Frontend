@@ -22,7 +22,7 @@
         </div>
 
         <!-- Formulario -->
-        <form @submit.prevent="guardar" class="p-6 space-y-4">
+        <form @submit.prevent="guardar" class="p-6 space-y-4 flex flex-col h-full">
           <!-- Nombre -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -58,6 +58,30 @@
             />
           </div>
 
+          <!-- Área (solo para Tipos de Solicitud) -->
+          <div v-if="estipoSolicitud">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Área
+              <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="formData.areaId"
+              @blur="validarCampo('areaId')"
+              :class="[
+                'w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition',
+                hasError('areaId')
+                  ? 'border-red-500 focus:border-red-600'
+                  : 'border-gray-300 focus:border-indigo-600'
+              ]"
+            >
+              <option :value="null">-- Seleccione un área --</option>
+              <option v-for="area in areas" :key="area.id" :value="area.id">
+                {{ area.nombre }}
+              </option>
+            </select>
+            <p v-if="getError('areaId')" class="text-sm text-red-500 mt-1">{{ getError('areaId') }}</p>
+          </div>
+
           <!-- Estado -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
@@ -69,25 +93,26 @@
               <option :value="false">Inactivo</option>
             </select>
           </div>
-        </form>
 
-        <!-- Footer -->
-        <div class="sticky bottom-0 bg-gray-50 border-t-2 border-gray-200 px-6 py-4 flex gap-3 justify-end">
-          <button
-            @click="cerrar"
-            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition"
-            :disabled="isSubmitting"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="guardar"
-            :disabled="isSubmitting"
-            class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
-          >
-            {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
-          </button>
-        </div>
+          <!-- Footer con botones -->
+          <div class="flex gap-3 justify-end mt-6">
+            <button
+              type="button"
+              @click="cerrar"
+              class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition"
+              :disabled="isSubmitting"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              :disabled="isSubmitting"
+              class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
+            >
+              {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </Transition>
@@ -107,6 +132,10 @@ const props = defineProps({
   mostrarDescripcion: {
     type: Boolean,
     default: false
+  },
+  areas: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -115,10 +144,12 @@ const emit = defineEmits(['close', 'success'])
 const titulo = computed(() => props.tipo)
 const isEditing = computed(() => !!props.item?.id)
 const mostrarDescripcion = computed(() => props.mostrarDescripcion)
+const estipoSolicitud = computed(() => props.tipo === 'Tipo de Solicitud')
 
 const formData = ref({
   nombre: '',
   descripcion: '',
+  areaId: null,
   estado: true
 })
 
@@ -132,6 +163,9 @@ const validationRules = {
     { required: true, message: 'El nombre es requerido' },
     { minLength: 2, message: 'El nombre debe tener al menos 2 caracteres' },
     { maxLength: 100, message: 'El nombre no puede exceder 100 caracteres' }
+  ],
+  areaId: [
+    { required: true, message: 'El área es requerido para tipos de solicitud' }
   ]
 }
 
@@ -148,13 +182,15 @@ const getError = (campo) => {
   for (const rule of rules) {
     const valor = formData.value[campo]
 
-    if (rule.required && (!valor || valor.trim() === '')) {
+    if (rule.required) {
+      if (!valor || (typeof valor === 'string' && valor.trim() === '')) {
+        return rule.message
+      }
+    }
+    if (rule.minLength && typeof valor === 'string' && valor.length < rule.minLength) {
       return rule.message
     }
-    if (rule.minLength && valor.length < rule.minLength) {
-      return rule.message
-    }
-    if (rule.maxLength && valor.length > rule.maxLength) {
+    if (rule.maxLength && typeof valor === 'string' && valor.length > rule.maxLength) {
       return rule.message
     }
   }
@@ -170,6 +206,9 @@ const validarFormulario = () => {
   error.value = ''
 
   for (const campo of Object.keys(validationRules)) {
+    // Saltar validación de areaId si no es TipoSolicitud
+    if (campo === 'areaId' && !estipoSolicitud.value) continue
+
     touched.value[campo] = true
     if (hasError(campo)) {
       error.value = `Por favor, corrige los errores en el formulario`
@@ -181,16 +220,21 @@ const validarFormulario = () => {
 }
 
 const guardar = async () => {
-  if (!validarFormulario()) return
+  if (!validarFormulario()) {
+    console.log('Validación fallida')
+    return
+  }
 
   isSubmitting.value = true
   try {
     const dataToSend = {
       nombre: formData.value.nombre.trim(),
       ...(mostrarDescripcion.value && { descripcion: formData.value.descripcion }),
+      ...(estipoSolicitud.value && { areaId: formData.value.areaId }),
       estado: formData.value.estado
     }
 
+    console.log('Enviando datos:', { action: isEditing.value ? 'update' : 'create', data: dataToSend })
     emit('success', {
       action: isEditing.value ? 'update' : 'create',
       data: dataToSend
@@ -212,6 +256,7 @@ const resetForm = () => {
   formData.value = {
     nombre: '',
     descripcion: '',
+    areaId: null,
     estado: true
   }
   error.value = ''
@@ -226,6 +271,7 @@ watch(
       formData.value = {
         nombre: newItem.nombre || '',
         descripcion: newItem.descripcion || '',
+        areaId: newItem.areaId || null,
         estado: newItem.activo !== undefined ? newItem.activo : newItem.estado !== undefined ? newItem.estado : true
       }
     } else {
