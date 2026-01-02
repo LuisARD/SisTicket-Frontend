@@ -57,7 +57,41 @@ export const ROLE_LABELS = {
   1: 'Solicitante',
   2: 'Gestor',
   3: 'Admin',
-  4: 'SuperAdmin'
+  4: 'Super Admin'
+}
+
+export const ROLE_COLORS = {
+  1: 'bg-blue-100 text-blue-800',
+  2: 'bg-yellow-100 text-yellow-800',
+  3: 'bg-orange-100 text-orange-800',
+  4: 'bg-red-100 text-red-800'
+}
+
+// Estados de Usuario
+export const USUARIO_ESTADOS = {
+  ACTIVO: true,
+  INACTIVO: false
+}
+
+// Validaciones
+export const VALIDACIONES = {
+  NOMBRE_MIN: 3,
+  NOMBRE_MAX: 100,
+  EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  USERNAME_MIN: 3,
+  USERNAME_MAX: 50
+}
+
+// Mensajes
+export const MENSAJES = {
+  CONFIRMACION_ELIMINAR: '¿Estás seguro de que deseas eliminar este usuario?',
+  USUARIO_CREADO: 'Usuario creado exitosamente',
+  USUARIO_ACTUALIZADO: 'Usuario actualizado exitosamente',
+  USUARIO_ELIMINADO: 'Usuario eliminado exitosamente',
+  ERROR_CARGAR_USUARIOS: 'Error al cargar los usuarios',
+  ERROR_CREAR_USUARIO: 'Error al crear el usuario',
+  ERROR_ACTUALIZAR_USUARIO: 'Error al actualizar el usuario',
+  ERROR_ELIMINAR_USUARIO: 'Error al eliminar el usuario'
 }
 
 // Endpoints
@@ -79,11 +113,13 @@ export const API_ENDPOINTS = {
     CREAR_COMENTARIO: (id) => `/Solicitudes/${id}/comentarios`
   },
   USUARIOS: {
-    LIST: '/Usuarios',
-    GET: (id) => `/Usuarios/${id}`,
-    CREATE: '/Usuarios',
-    UPDATE: (id) => `/Usuarios/${id}`,
-    DELETE: (id) => `/Usuarios/${id}`
+    LIST: '/usuarios',
+    GET: (id) => `/usuarios/${id}`,
+    CREATE: '/usuarios',
+    UPDATE: (id) => `/usuarios/${id}`,
+    DELETE: (id) => `/usuarios/${id}`,
+    POR_AREA: (areaId) => `/usuarios/area/${areaId}`,
+    GESTORES_AREA: (areaId) => `/usuarios/gestores/area/${areaId}`
   },
   CATALOGOS: {
     AREAS: '/Catalogos/areas',
