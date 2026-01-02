@@ -69,6 +69,7 @@ export const API_ENDPOINTS = {
   },
   SOLICITUDES: {
     LIST: '/Solicitudes',
+    MIS_SOLICITUDES: '/Solicitudes/mis-solicitudes',
     GET: (id) => `/Solicitudes/${id}`,
     CREATE: '/Solicitudes',
     UPDATE: (id) => `/Solicitudes/${id}`,

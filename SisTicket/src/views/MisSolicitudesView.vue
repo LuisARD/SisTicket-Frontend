@@ -16,6 +16,39 @@
         </button>
       </div>
 
+      <!-- Estadísticas -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+        <!-- Total -->
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <div class="text-2xl sm:text-3xl font-bold text-gray-800">{{ estadisticas.total }}</div>
+          <div class="text-xs sm:text-sm text-gray-600 mt-1">Total</div>
+        </div>
+
+        <!-- Nuevas -->
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <div class="text-2xl sm:text-3xl font-bold text-purple-600">{{ estadisticas.nuevas }}</div>
+          <div class="text-xs sm:text-sm text-gray-600 mt-1">Nuevas</div>
+        </div>
+
+        <!-- En Proceso -->
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <div class="text-2xl sm:text-3xl font-bold text-blue-600">{{ estadisticas.enProceso }}</div>
+          <div class="text-xs sm:text-sm text-gray-600 mt-1">En Proceso</div>
+        </div>
+
+        <!-- Resueltas -->
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center hidden sm:block">
+          <div class="text-2xl sm:text-3xl font-bold text-green-600">{{ estadisticas.resueltas }}</div>
+          <div class="text-xs sm:text-sm text-gray-600 mt-1">Resueltas</div>
+        </div>
+
+        <!-- Cerradas -->
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center hidden lg:block">
+          <div class="text-2xl sm:text-3xl font-bold text-gray-600">{{ estadisticas.cerradas }}</div>
+          <div class="text-xs sm:text-sm text-gray-600 mt-1">Cerradas</div>
+        </div>
+      </div>
+
       <!-- Buscador y Filtros -->
       <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-6">
         <!-- Buscador -->
@@ -97,7 +130,11 @@
       </div>
 
       <!-- Tabla de Solicitudes -->
-      <SolicitudesTable :solicitudes="solicitudesFiltradas" />
+      <MisSolicitudesTable
+        :solicitudes="misSolicitudesFiltradas"
+        @editar="editarSolicitud"
+        @eliminar="eliminarSolicitud"
+      />
     </div>
 
     <!-- Bottom NavBar -->
@@ -117,44 +154,55 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
-import SolicitudesTable from '../components/SolicitudesTable.vue'
+import MisSolicitudesTable from '../components/MisSolicitudesTable.vue'
+import { useMisSolicitudes } from '../composables/useMisSolicitudes'
+import { useNotification } from '../composables/useNotification'
 
 const router = useRouter()
-
-const searchQuery = ref('')
-const isLoading = ref(false)
-const solicitudesFiltradas = ref([])
-
-const filtros = ref({
-  estado: '',
-  prioridadId: '',
-  fechaDesde: '',
-  fechaHasta: ''
-})
-
-const aplicarFiltros = async () => {
-  isLoading.value = true
-  // Aquí irá la lógica para obtener solicitudes del usuario
-  // Por ahora es un placeholder
-  isLoading.value = false
-}
-
-const limpiarFiltros = () => {
-  searchQuery.value = ''
-  filtros.value = {
-    estado: '',
-    prioridadId: '',
-    fechaDesde: '',
-    fechaHasta: ''
-  }
-}
+const { mostrarNotificacion } = useNotification()
+const {
+  misSolicitudes,
+  isLoading,
+  searchQuery,
+  filtros,
+  misSolicitudesFiltradas,
+  estadisticas,
+  aplicarFiltros,
+  limpiarFiltros,
+  eliminarSolicitud: deleteSolicitud,
+  puedeSerEditada
+} = useMisSolicitudes()
 
 const crearSolicitud = () => {
   // Redirigir a la vista de crear solicitud cuando esté lista
   router.push('/crear-solicitud')
+}
+
+const editarSolicitud = (solicitud) => {
+  // Validar que la solicitud solo pueda ser editada si está en estado "Nueva"
+  if (!puedeSerEditada(solicitud)) {
+    mostrarNotificacion(
+      'Solo se pueden editar solicitudes en estado "Nueva"',
+      'warning'
+    )
+    return
+  }
+
+  // Redirigir a la vista de editar solicitud
+  router.push(`/editar-solicitud/${solicitud.id}`)
+}
+
+const eliminarSolicitud = async (id) => {
+  // Confirmar eliminación
+  if (
+    confirm(
+      '¿Está seguro que desea eliminar esta solicitud? Esta acción no se puede deshacer.'
+    )
+  ) {
+    await deleteSolicitud(id)
+  }
 }
 </script>

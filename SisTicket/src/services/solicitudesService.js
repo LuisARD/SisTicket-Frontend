@@ -5,10 +5,10 @@ const solicitudesService = {
     try {
       const params = new URLSearchParams()
 
-      if (filtros.estado) params.append('estado', filtros.estado)
-      if (filtros.prioridadId) params.append('prioridadId', filtros.prioridadId)
-      if (filtros.fechaDesde) params.append('fechaDesde', filtros.fechaDesde)
-      if (filtros.fechaHasta) params.append('fechaHasta', filtros.fechaHasta)
+      if (filtros.estado && filtros.estado !== '') params.append('estado', filtros.estado)
+      if (filtros.prioridadId && filtros.prioridadId !== '') params.append('prioridadId', filtros.prioridadId)
+      if (filtros.fechaDesde && filtros.fechaDesde !== '') params.append('fechaDesde', filtros.fechaDesde)
+      if (filtros.fechaHasta && filtros.fechaHasta !== '') params.append('fechaHasta', filtros.fechaHasta)
 
       const queryString = params.toString()
       const url = queryString ? `/Solicitudes/filtrar?${queryString}` : '/Solicitudes'
@@ -126,10 +126,10 @@ const solicitudesService = {
     try {
       const params = new URLSearchParams()
 
-      if (filtros.estado) params.append('estado', filtros.estado)
-      if (filtros.prioridadId) params.append('prioridadId', filtros.prioridadId)
-      if (filtros.fechaDesde) params.append('fechaDesde', filtros.fechaDesde)
-      if (filtros.fechaHasta) params.append('fechaHasta', filtros.fechaHasta)
+      if (filtros.estado && filtros.estado !== '') params.append('estado', filtros.estado)
+      if (filtros.prioridadId && filtros.prioridadId !== '') params.append('prioridadId', filtros.prioridadId)
+      if (filtros.fechaDesde && filtros.fechaDesde !== '') params.append('fechaDesde', filtros.fechaDesde)
+      if (filtros.fechaHasta && filtros.fechaHasta !== '') params.append('fechaHasta', filtros.fechaHasta)
 
       const queryString = params.toString()
       const url = queryString ? `/Solicitudes/mis-solicitudes?${queryString}` : '/Solicitudes/mis-solicitudes'
