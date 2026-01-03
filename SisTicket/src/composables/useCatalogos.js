@@ -7,7 +7,7 @@ export const useCatalogos = () => {
   const prioridades = ref([])
   const tiposSolicitud = ref([])
   const isLoading = ref(false)
-  const { mostrarNotificacion } = useNotification()
+  const { success, error: showError } = useNotification()
 
   // ===== CARGAR DATOS =====
   const cargarAreas = async () => {
@@ -18,7 +18,7 @@ export const useCatalogos = () => {
       console.log('Áreas cargadas:', areas.value.length)
     } catch (error) {
       console.error('Error al cargar áreas:', error)
-      mostrarNotificacion('Error al cargar áreas', 'error')
+      showError('Error al cargar áreas')
       areas.value = []
     } finally {
       isLoading.value = false
@@ -33,7 +33,7 @@ export const useCatalogos = () => {
       console.log('Prioridades cargadas:', prioridades.value.length)
     } catch (error) {
       console.error('Error al cargar prioridades:', error)
-      mostrarNotificacion('Error al cargar prioridades', 'error')
+      showError('Error al cargar prioridades')
       prioridades.value = []
     } finally {
       isLoading.value = false
@@ -48,7 +48,7 @@ export const useCatalogos = () => {
       console.log('Tipos de solicitud cargados:', tiposSolicitud.value.length)
     } catch (error) {
       console.error('Error al cargar tipos de solicitud:', error)
-      mostrarNotificacion('Error al cargar tipos de solicitud', 'error')
+      showError('Error al cargar tipos de solicitud')
       tiposSolicitud.value = []
     } finally {
       isLoading.value = false
@@ -64,12 +64,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.createArea(data)
-      mostrarNotificacion('Área creada correctamente', 'success')
+      success('Área creada correctamente')
       await cargarAreas()
       return true
     } catch (error) {
       console.error('Error al crear área:', error)
-      mostrarNotificacion('Error al crear el área', 'error')
+      showError('Error al crear el área')
       return false
     } finally {
       isLoading.value = false
@@ -80,12 +80,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.createPrioridad(data)
-      mostrarNotificacion('Prioridad creada correctamente', 'success')
+      success('Prioridad creada correctamente')
       await cargarPrioridades()
       return true
     } catch (error) {
       console.error('Error al crear prioridad:', error)
-      mostrarNotificacion('Error al crear la prioridad', 'error')
+      showError('Error al crear la prioridad')
       return false
     } finally {
       isLoading.value = false
@@ -96,12 +96,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.createTipoSolicitud(data)
-      mostrarNotificacion('Tipo de solicitud creado correctamente', 'success')
+      success('Tipo de solicitud creado correctamente')
       await cargarTiposSolicitud()
       return true
     } catch (error) {
       console.error('Error al crear tipo de solicitud:', error)
-      mostrarNotificacion('Error al crear el tipo de solicitud', 'error')
+      showError('Error al crear el tipo de solicitud')
       return false
     } finally {
       isLoading.value = false
@@ -113,12 +113,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.updateArea(id, data)
-      mostrarNotificacion('Área actualizada correctamente', 'success')
+      success('Área actualizada correctamente')
       await cargarAreas()
       return true
     } catch (error) {
       console.error('Error al actualizar área:', error)
-      mostrarNotificacion('Error al actualizar el área', 'error')
+      showError('Error al actualizar el área')
       return false
     } finally {
       isLoading.value = false
@@ -129,12 +129,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.updatePrioridad(id, data)
-      mostrarNotificacion('Prioridad actualizada correctamente', 'success')
+      success('Prioridad actualizada correctamente')
       await cargarPrioridades()
       return true
     } catch (error) {
       console.error('Error al actualizar prioridad:', error)
-      mostrarNotificacion('Error al actualizar la prioridad', 'error')
+      showError('Error al actualizar la prioridad')
       return false
     } finally {
       isLoading.value = false
@@ -145,12 +145,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.updateTipoSolicitud(id, data)
-      mostrarNotificacion('Tipo de solicitud actualizado correctamente', 'success')
+      success('Tipo de solicitud actualizado correctamente')
       await cargarTiposSolicitud()
       return true
     } catch (error) {
       console.error('Error al actualizar tipo de solicitud:', error)
-      mostrarNotificacion('Error al actualizar el tipo de solicitud', 'error')
+      showError('Error al actualizar el tipo de solicitud')
       return false
     } finally {
       isLoading.value = false
@@ -162,12 +162,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.deleteArea(id)
-      mostrarNotificacion('Área eliminada correctamente', 'success')
+      success('Área eliminada correctamente')
       await cargarAreas()
       return true
     } catch (error) {
       console.error('Error al eliminar área:', error)
-      mostrarNotificacion('Error al eliminar el área', 'error')
+      showError('Error al eliminar el área')
       return false
     } finally {
       isLoading.value = false
@@ -178,12 +178,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.deletePrioridad(id)
-      mostrarNotificacion('Prioridad eliminada correctamente', 'success')
+      success('Prioridad eliminada correctamente')
       await cargarPrioridades()
       return true
     } catch (error) {
       console.error('Error al eliminar prioridad:', error)
-      mostrarNotificacion('Error al eliminar la prioridad', 'error')
+      showError('Error al eliminar la prioridad')
       return false
     } finally {
       isLoading.value = false
@@ -194,12 +194,12 @@ export const useCatalogos = () => {
     isLoading.value = true
     try {
       await catalogosService.deleteTipoSolicitud(id)
-      mostrarNotificacion('Tipo de solicitud eliminado correctamente', 'success')
+      success('Tipo de solicitud eliminado correctamente')
       await cargarTiposSolicitud()
       return true
     } catch (error) {
       console.error('Error al eliminar tipo de solicitud:', error)
-      mostrarNotificacion('Error al eliminar el tipo de solicitud', 'error')
+      showError('Error al eliminar el tipo de solicitud')
       return false
     } finally {
       isLoading.value = false

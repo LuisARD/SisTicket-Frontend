@@ -148,18 +148,13 @@ import BottomNavBar from '../components/BottomNavBar.vue'
 import CatalogosTable from '../components/CatalogosTable.vue'
 import CatalogosModal from '../components/CatalogosModal.vue'
 import { useCatalogos } from '../composables/useCatalogos'
-import { useNotification } from '../composables/useNotification'
 import { authStore } from '../stores/authStore'
 
-const { mostrarNotificacion } = useNotification()
 const catalogos = useCatalogos()
 const {
-  crearArea,
-  crearPrioridad,
-  crearTipoSolicitud,
-  actualizarArea,
-  actualizarPrioridad,
-  actualizarTipoSolicitud,
+  cargarAreas,
+  cargarPrioridades,
+  cargarTiposSolicitud,
   eliminarArea: deleteArea,
   eliminarPrioridad: deletePrioridad,
   eliminarTipoSolicitud: deleteTipoSolicitud
@@ -230,26 +225,22 @@ const cerrarModalArea = () => {
   modalArea.value = { isOpen: false, item: null }
 }
 
-const handleModalAreaSuccess = async ({ action, data }) => {
-  try {
-    if (action === 'create') {
-      await crearArea(data)
-    } else {
-      await actualizarArea(modalArea.value.item.id, data)
-    }
-    // Esperar un poco para asegurar que los datos se actualizaron
-    await new Promise(resolve => setTimeout(resolve, 300))
-  } catch (error) {
-    console.error('Error en operación de área:', error)
-  } finally {
-    cerrarModalArea()
-  }
+const handleModalAreaSuccess = async () => {
+  cerrarModalArea()
+  // Recargar las áreas después de la operación
+  await catalogos.cargarAreas()
 }
 
 const eliminarArea = async (id) => {
   if (!puedeEliminar()) return
-  if (confirm('¿Está seguro que desea eliminar esta área?')) {
+  
+  if (!confirm('¿Está seguro que desea eliminar esta área?')) return
+  
+  try {
     await deleteArea(id)
+    await cargarAreas()
+  } catch (error) {
+    console.error('Error al eliminar área:', error)
   }
 }
 
@@ -268,26 +259,22 @@ const cerrarModalPrioridad = () => {
   modalPrioridad.value = { isOpen: false, item: null }
 }
 
-const handleModalPrioridadSuccess = async ({ action, data }) => {
-  try {
-    if (action === 'create') {
-      await crearPrioridad(data)
-    } else {
-      await actualizarPrioridad(modalPrioridad.value.item.id, data)
-    }
-    // Esperar un poco para asegurar que los datos se actualizaron
-    await new Promise(resolve => setTimeout(resolve, 300))
-  } catch (error) {
-    console.error('Error en operación de prioridad:', error)
-  } finally {
-    cerrarModalPrioridad()
-  }
+const handleModalPrioridadSuccess = async () => {
+  cerrarModalPrioridad()
+  // Recargar las prioridades después de la operación
+  await catalogos.cargarPrioridades()
 }
 
 const eliminarPrioridad = async (id) => {
   if (!puedeEliminar()) return
-  if (confirm('¿Está seguro que desea eliminar esta prioridad?')) {
+  
+  if (!confirm('¿Está seguro que desea eliminar esta prioridad?')) return
+  
+  try {
     await deletePrioridad(id)
+    await cargarPrioridades()
+  } catch (error) {
+    console.error('Error al eliminar prioridad:', error)
   }
 }
 
@@ -306,26 +293,22 @@ const cerrarModalTipo = () => {
   modalTipo.value = { isOpen: false, item: null }
 }
 
-const handleModalTipoSuccess = async ({ action, data }) => {
-  try {
-    if (action === 'create') {
-      await crearTipoSolicitud(data)
-    } else {
-      await actualizarTipoSolicitud(modalTipo.value.item.id, data)
-    }
-    // Esperar un poco para asegurar que los datos se actualizaron
-    await new Promise(resolve => setTimeout(resolve, 300))
-  } catch (error) {
-    console.error('Error en operación de tipo de solicitud:', error)
-  } finally {
-    cerrarModalTipo()
-  }
+const handleModalTipoSuccess = async () => {
+  cerrarModalTipo()
+  // Recargar los tipos de solicitud después de la operación
+  await catalogos.cargarTiposSolicitud()
 }
 
 const eliminarTipoSolicitud = async (id) => {
   if (!puedeEliminar()) return
-  if (confirm('¿Está seguro que desea eliminar este tipo de solicitud?')) {
+  
+  if (!confirm('¿Está seguro que desea eliminar este tipo de solicitud?')) return
+  
+  try {
     await deleteTipoSolicitud(id)
+    await cargarTiposSolicitud()
+  } catch (error) {
+    console.error('Error al eliminar tipo de solicitud:', error)
   }
 }
 </script>

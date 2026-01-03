@@ -58,6 +58,28 @@
             />
           </div>
 
+          <!-- Nivel (solo para Prioridades) -->
+          <div v-if="props.tipo === 'Prioridad'">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Nivel
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model.number="formData.nivel"
+              type="number"
+              placeholder="1"
+              min="1"
+              @blur="validarCampo('nivel')"
+              :class="[
+                'w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition',
+                hasError('nivel')
+                  ? 'border-red-500 focus:border-red-600'
+                  : 'border-gray-300 focus:border-indigo-600'
+              ]"
+            />
+            <p v-if="getError('nivel')" class="text-sm text-red-500 mt-1">{{ getError('nivel') }}</p>
+          </div>
+
           <!-- Área (solo para Tipos de Solicitud) -->
           <div v-if="estipoSolicitud">
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -80,18 +102,6 @@
               </option>
             </select>
             <p v-if="getError('areaId')" class="text-sm text-red-500 mt-1">{{ getError('areaId') }}</p>
-          </div>
-
-          <!-- Estado -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-            <select
-              v-model="formData.estado"
-              class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 transition"
-            >
-              <option :value="true">Activo</option>
-              <option :value="false">Inactivo</option>
-            </select>
           </div>
 
           <!-- Footer con botones -->
@@ -120,6 +130,8 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import catalogosService from '../services/catalogosService'
+import { useNotification } from '../composables/useNotification'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -140,6 +152,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'success'])
+const { success, error: showError } = useNotification()
 
 const titulo = computed(() => props.tipo)
 const isEditing = computed(() => !!props.item?.id)
@@ -149,8 +162,8 @@ const estipoSolicitud = computed(() => props.tipo === 'Tipo de Solicitud')
 const formData = ref({
   nombre: '',
   descripcion: '',
-  areaId: null,
-  estado: true
+  nivel: '',
+  areaId: null
 })
 
 const error = ref('')
@@ -163,6 +176,9 @@ const validationRules = {
     { required: true, message: 'El nombre es requerido' },
     { minLength: 2, message: 'El nombre debe tener al menos 2 caracteres' },
     { maxLength: 100, message: 'El nombre no puede exceder 100 caracteres' }
+  ],
+  nivel: [
+    { required: true, message: 'El nivel es requerido para prioridades' }
   ],
   areaId: [
     { required: true, message: 'El área es requerido para tipos de solicitud' }
@@ -206,8 +222,9 @@ const validarFormulario = () => {
   error.value = ''
 
   for (const campo of Object.keys(validationRules)) {
-    // Saltar validación de areaId si no es TipoSolicitud
-    if (campo === 'areaId' && !estipoSolicitud.value) continue
+    // Saltar validación condicional según el tipo
+    if (campo === 'nivel' && props.tipo !== 'Prioridad') continue
+    if (campo === 'areaId' && props.tipo !== 'Tipo de Solicitud') continue
 
     touched.value[campo] = true
     if (hasError(campo)) {
@@ -227,21 +244,72 @@ const guardar = async () => {
 
   isSubmitting.value = true
   try {
-    const dataToSend = {
-      nombre: formData.value.nombre.trim(),
-      ...(mostrarDescripcion.value && { descripcion: formData.value.descripcion }),
-      ...(estipoSolicitud.value && { areaId: formData.value.areaId }),
-      estado: formData.value.estado
+    let dataToSend = {}
+
+    // Siempre enviar nombre (es requerido)
+    dataToSend.nombre = formData.value.nombre.trim()
+
+    // Construir objeto según el tipo
+    if (props.tipo === 'Prioridad') {
+      // Prioridades: nombre, nivel, descripcion
+      dataToSend.nivel = formData.value.nivel || 1 // nivel por defecto
+      if (formData.value.descripcion?.trim()) {
+        dataToSend.descripcion = formData.value.descripcion.trim()
+      }
+    } else if (props.tipo === 'Tipo de Solicitud') {
+      // Tipos de Solicitud: nombre, descripcion, areaId
+      if (formData.value.descripcion?.trim()) {
+        dataToSend.descripcion = formData.value.descripcion.trim()
+      }
+      if (formData.value.areaId) {
+        dataToSend.areaId = formData.value.areaId
+      }
+    } else {
+      // Áreas: nombre, descripcion
+      if (formData.value.descripcion?.trim()) {
+        dataToSend.descripcion = formData.value.descripcion.trim()
+      }
     }
 
-    console.log('Enviando datos:', { action: isEditing.value ? 'update' : 'create', data: dataToSend })
+    console.log('Enviando datos:', { action: isEditing.value ? 'update' : 'create', tipo: props.tipo, data: dataToSend })
+
+    // Ejecutar la operación directamente
+    if (isEditing.value) {
+      if (props.tipo === 'Área') {
+        await catalogosService.updateArea(props.item.id, dataToSend)
+        success('Área actualizada correctamente')
+      } else if (props.tipo === 'Prioridad') {
+        await catalogosService.updatePrioridad(props.item.id, dataToSend)
+        success('Prioridad actualizada correctamente')
+      } else if (props.tipo === 'Tipo de Solicitud') {
+        await catalogosService.updateTipoSolicitud(props.item.id, dataToSend)
+        success('Tipo de solicitud actualizado correctamente')
+      }
+    } else {
+      if (props.tipo === 'Área') {
+        await catalogosService.createArea(dataToSend)
+        success('Área creada correctamente')
+      } else if (props.tipo === 'Prioridad') {
+        await catalogosService.createPrioridad(dataToSend)
+        success('Prioridad creada correctamente')
+      } else if (props.tipo === 'Tipo de Solicitud') {
+        await catalogosService.createTipoSolicitud(dataToSend)
+        success('Tipo de solicitud creado correctamente')
+      }
+    }
+
+    // Emitir éxito
     emit('success', {
       action: isEditing.value ? 'update' : 'create',
       data: dataToSend
     })
+
+    // Cerrar modal
+    cerrar()
   } catch (err) {
-    error.value = 'Error al guardar. Intenta nuevamente.'
+    error.value = err.message || 'Error al guardar. Intenta nuevamente.'
     console.error(err)
+    showError(error.value)
   } finally {
     isSubmitting.value = false
   }
@@ -256,8 +324,8 @@ const resetForm = () => {
   formData.value = {
     nombre: '',
     descripcion: '',
-    areaId: null,
-    estado: true
+    nivel: '',
+    areaId: null
   }
   error.value = ''
   touched.value = {}
@@ -271,8 +339,8 @@ watch(
       formData.value = {
         nombre: newItem.nombre || '',
         descripcion: newItem.descripcion || '',
-        areaId: newItem.areaId || null,
-        estado: newItem.activo !== undefined ? newItem.activo : newItem.estado !== undefined ? newItem.estado : true
+        nivel: newItem.nivel || '',
+        areaId: newItem.areaId || null
       }
     } else {
       resetForm()
