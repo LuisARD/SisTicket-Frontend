@@ -6,6 +6,7 @@ import SolicitudDetalleView from '../views/SolicitudDetalleView.vue'
 import MisSolicitudesView from '../views/MisSolicitudesView.vue'
 import UsuariosView from '../views/UsuariosView.vue'
 import CatalogosView from '../views/CatalogosView.vue'
+import BandejaAreaView from '../views/BandejaAreaView.vue'
 import { authStore } from '../stores/authStore'
 
 const routes = [
@@ -32,7 +33,7 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/solicitudes/:id',
+    path: '/detalle-solicitud/:id',
     name: 'SolicitudDetalle',
     component: SolicitudDetalleView,
     meta: { requiresAuth: true }
@@ -52,7 +53,7 @@ const routes = [
   {
     path: '/bandeja-area',
     name: 'BandejaArea',
-    redirect: '/solicitudes',
+    component: BandejaAreaView,
     meta: { requiresAuth: true }
   },
   {

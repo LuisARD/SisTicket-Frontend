@@ -22,8 +22,9 @@
           <span class="text-xs sm:text-sm font-semibold">Solicitudes</span>
         </RouterLink>
 
-        <!-- Catálogos -->
+        <!-- Catálogos (Solo Admins) -->
         <RouterLink
+          v-if="esAdmin"
           to="/catalogos"
           :class="[
             'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
@@ -40,8 +41,9 @@
           <span class="text-xs sm:text-sm font-semibold">Catálogos</span>
         </RouterLink>
 
-        <!-- Bandeja de Área -->
+        <!-- Bandeja de Área (Gestores y Admins) -->
         <RouterLink
+          v-if="puedeVerBandeja"
           to="/bandeja-area"
           :class="[
             'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
@@ -78,8 +80,9 @@
           <span class="text-xs sm:text-sm font-semibold">Mis Solicitudes</span>
         </RouterLink>
 
-        <!-- Gestión de Usuarios -->
+        <!-- Gestión de Usuarios (Solo Admins) -->
         <RouterLink
+          v-if="esAdmin"
           to="/usuarios"
           :class="[
             'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
@@ -103,6 +106,7 @@
 <script>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { authStore } from '../stores/authStore'
 
 export default {
   name: 'BottomNavBar',
@@ -113,8 +117,22 @@ export default {
       return route.path === path || route.path.startsWith(path + '/')
     })
 
+    const esAdmin = computed(() => {
+      const rol = authStore.user?.rol
+      return rol === 'Admin' || rol === 'SuperAdmin' || rol === 3 || rol === 4
+    })
+
+    const esGestor = computed(() => {
+      const rol = authStore.user?.rol
+      return rol === 'Gestor' || rol === 2
+    })
+
+    const puedeVerBandeja = computed(() => esAdmin.value || esGestor.value)
+
     return {
-      isActive
+      isActive,
+      esAdmin,
+      puedeVerBandeja
     }
   }
 }

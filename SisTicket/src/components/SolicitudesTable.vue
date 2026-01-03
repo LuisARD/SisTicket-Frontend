@@ -58,7 +58,7 @@
             </td>
             <td class="px-4 py-3 text-center">
               <RouterLink
-                :to="`/solicitudes/${solicitud.id}`"
+                :to="`/detalle-solicitud/${solicitud.id}`"
                 class="text-indigo-600 hover:text-indigo-800 transition"
                 title="Ver detalles"
               >
@@ -90,7 +90,7 @@
             <p class="text-sm font-semibold text-gray-800">{{ solicitud.titulo }}</p>
           </div>
           <RouterLink
-            :to="`/solicitudes/${solicitud.id}`"
+            :to="`/detalle-solicitud/${solicitud.id}`"
             class="text-indigo-600 hover:text-indigo-800"
           >
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
