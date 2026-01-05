@@ -34,15 +34,17 @@
           </label>
           <select
             v-model="gestorId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            :disabled="isLoading"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+            :disabled="isLoading || cargandoGestores || !gestoresDisponibles.length"
           >
-            <option value="">-- Seleccionar --</option>
+            <option value="">
+              {{ cargandoGestores ? 'Cargando gestores...' : '-- Seleccionar --' }}
+            </option>
             <option v-for="gestor in gestoresDisponibles" :key="gestor.id" :value="gestor.id">
               {{ gestor.nombre }}
             </option>
           </select>
-          <p v-if="!gestoresDisponibles.length" class="text-xs text-amber-600 mt-1">
+          <p v-if="!cargandoGestores && !gestoresDisponibles.length" class="text-xs text-amber-600 mt-1">
             No hay gestores disponibles en esta área
           </p>
         </div>
@@ -89,14 +91,47 @@ const { success, showError } = useNotification()
 const gestorId = ref('')
 const gestoresDisponibles = ref([])
 const isLoading = ref(false)
+const cargandoGestores = ref(false)
+
+// Función para cargar gestores del área
+const cargarGestores = async (areaId) => {
+  if (!areaId) {
+    gestoresDisponibles.value = []
+    return
+  }
+  
+  cargandoGestores.value = true
+  try {
+    const gestores = await cargarGestoresArea(areaId)
+    gestoresDisponibles.value = gestores || []
+    
+    if (!gestoresDisponibles.value.length) {
+      showError('No hay gestores disponibles en esta área')
+    }
+  } catch (error) {
+    console.error('Error al cargar gestores:', error)
+    gestoresDisponibles.value = []
+    showError('Error al cargar gestores del área')
+  } finally {
+    cargandoGestores.value = false
+  }
+}
 
 // Cargar gestores cuando cambia el areaId
 watch(
   () => props.areaId,
-  async (newAreaId) => {
-    if (newAreaId) {
-      gestoresDisponibles.value = await cargarGestoresArea(newAreaId)
-      gestorId.value = ''
+  (newAreaId) => {
+    cargarGestores(newAreaId)
+    gestorId.value = ''
+  }
+)
+
+// Cargar gestores cuando se abre el modal
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (isOpen && props.areaId) {
+      cargarGestores(props.areaId)
     }
   }
 )
@@ -110,10 +145,9 @@ const guardar = async () => {
   isLoading.value = true
   try {
     await asignarGestor(props.solicitud.id, gestorId.value)
-    success(`Gestor asignado exitosamente`)
     emit('success')
   } catch (error) {
-    showError(error.message || 'Error al asignar gestor')
+    // El error ya fue mostrado en asignarGestor
   } finally {
     isLoading.value = false
   }

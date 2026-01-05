@@ -108,10 +108,9 @@ const guardar = async () => {
   isLoading.value = true
   try {
     await cambiarEstado(props.solicitud.id, nuevoEstado.value)
-    success(`Estado cambiado a: ${nuevoEstado.value}`)
     emit('success')
   } catch (error) {
-    showError(error.message || 'Error al cambiar estado')
+    // El error ya fue mostrado en cambiarEstado
   } finally {
     isLoading.value = false
   }

@@ -29,7 +29,6 @@ export const useBandejaArea = () => {
       }
 
       solicitudes.value = datos
-      console.log(`Solicitudes cargadas: ${solicitudes.value.length}`)
     } catch (error) {
       console.error('Error al cargar solicitudes:', error)
       showError('Error al cargar solicitudes')
@@ -42,23 +41,27 @@ export const useBandejaArea = () => {
   // ===== CARGAR GESTORES DE UN ÁREA =====
   const cargarGestoresArea = async (areaId) => {
     try {
-      const response = await api.get('/Usuarios', {
-        params: {
-          rol: 2, // rol Gestor
-          areaId: areaId
-        }
+      // Obtener todos los usuarios
+      const response = await api.get('/Usuarios')
+      const todosLosUsuarios = Array.isArray(response.data) ? response.data : []
+      
+      // Filtrar: rol = 2 (Gestor) AND areaId = areaId de la solicitud
+      const gestoresDelArea = todosLosUsuarios.filter(usuario => {
+        const esGestor = usuario.rol === 2 || usuario.rol === 'Gestor'
+        const esDelArea = usuario.areaId === parseInt(areaId) || usuario.areaId === areaId
+        return esGestor && esDelArea
       })
-      return Array.isArray(response.data) ? response.data : []
+      
+      return gestoresDelArea
     } catch (error) {
       console.error('Error al cargar gestores del área:', error)
-      showError('Error al cargar gestores')
+      showError('Error al cargar gestores del área')
       return []
     }
   }
 
   // ===== ASIGNAR GESTOR =====
   const asignarGestor = async (solicitudId, gestorId) => {
-    isLoading.value = true
     try {
       await api.post(`/Solicitudes/${solicitudId}/asignar-gestor`, {
         gestorId: gestorId
@@ -68,16 +71,14 @@ export const useBandejaArea = () => {
       return true
     } catch (error) {
       console.error('Error al asignar gestor:', error)
-      showError('Error al asignar gestor')
-      return false
-    } finally {
-      isLoading.value = false
+      const errorMsg = error.response?.data?.message || 'Error al asignar gestor'
+      showError(errorMsg)
+      throw error
     }
   }
 
   // ===== CAMBIAR ESTADO =====
   const cambiarEstado = async (solicitudId, nuevoEstado) => {
-    isLoading.value = true
     try {
       await api.post(`/Solicitudes/${solicitudId}/cambiar-estado`, {
         estado: nuevoEstado
@@ -87,10 +88,9 @@ export const useBandejaArea = () => {
       return true
     } catch (error) {
       console.error('Error al cambiar estado:', error)
-      showError('Error al cambiar estado')
-      return false
-    } finally {
-      isLoading.value = false
+      const errorMsg = error.response?.data?.message || 'Error al cambiar estado'
+      showError(errorMsg)
+      throw error
     }
   }
 
