@@ -28,32 +28,32 @@
               {{ solicitud.titulo }}
             </td>
             <td class="px-4 py-3 text-sm text-gray-700">
-              {{ solicitud.area?.nombre || 'N/A' }}
+              {{ solicitud.areaNombre || solicitud.area?.nombre || 'N/A' }}
             </td>
             <td class="px-4 py-3 text-sm text-gray-700">
-              {{ solicitud.solicitanteNombre || 'N/A' }}
+              {{ solicitud.solicitanteNombre || solicitud.usuario?.nombre || 'N/A' }}
             </td>
             <td class="px-4 py-3 text-sm text-gray-700">
-              {{ solicitud.gestorAsignadoNombre || '-' }}
+              {{ solicitud.gestorNombre || solicitud.gestorAsignadoNombre || '-' }}
             </td>
             <td class="px-4 py-3 text-sm">
               <span
                 :class="[
                   'inline-block px-3 py-1 rounded-full text-xs font-semibold text-white',
-                  getPrioridadColor(solicitud.prioridad?.nivel)
+                  getPrioridadColor(solicitud.prioridadNombre || solicitud.prioridad?.nombre)
                 ]"
               >
-                {{ solicitud.prioridad?.nombre || 'N/A' }}
+                {{ solicitud.prioridadNombre || solicitud.prioridad?.nombre || 'N/A' }}
               </span>
             </td>
             <td class="px-4 py-3 text-sm">
               <span
                 :class="[
-                  'inline-block px-3 py-1 rounded-full text-xs font-semibold',
-                  getEstadoColor(solicitud.estado)
+                  'inline-block px-3 py-1 rounded-full text-xs font-semibold text-white',
+                  getEstadoColor(getEstadoActual(solicitud))
                 ]"
               >
-                {{ getEstadoLabel(solicitud.estado) }}
+                {{ getEstadoLabel(getEstadoActual(solicitud)) }}
               </span>
             </td>
             <td class="px-4 py-3 text-center">
@@ -105,27 +105,27 @@
         </div>
 
         <div class="space-y-2 text-xs text-gray-600">
-          <p><strong>Área:</strong> {{ solicitud.area?.nombre || 'N/A' }}</p>
-          <p><strong>Solicitante:</strong> {{ solicitud.solicitanteNombre || 'N/A' }}</p>
-          <p><strong>Gestor:</strong> {{ solicitud.gestorAsignadoNombre || '-' }}</p>
+          <p><strong>Área:</strong> {{ solicitud.areaNombre || solicitud.area?.nombre || 'N/A' }}</p>
+          <p><strong>Solicitante:</strong> {{ solicitud.solicitanteNombre || solicitud.usuario?.nombre || 'N/A' }}</p>
+          <p><strong>Gestor:</strong> {{ solicitud.gestorNombre || solicitud.gestorAsignadoNombre || '-' }}</p>
         </div>
 
         <div class="flex gap-2 mt-3">
           <span
             :class="[
               'inline-block px-2 py-1 rounded text-xs font-semibold text-white',
-              getPrioridadColor(solicitud.prioridad?.nivel)
+              getPrioridadColor(solicitud.prioridadNombre || solicitud.prioridad?.nombre)
             ]"
           >
-            {{ solicitud.prioridad?.nombre || 'N/A' }}
+            {{ solicitud.prioridadNombre || solicitud.prioridad?.nombre || 'N/A' }}
           </span>
           <span
             :class="[
-              'inline-block px-2 py-1 rounded text-xs font-semibold',
-              getEstadoColor(solicitud.estado)
+              'inline-block px-2 py-1 rounded text-xs font-semibold text-white',
+              getEstadoColor(getEstadoActual(solicitud))
             ]"
           >
-            {{ getEstadoLabel(solicitud.estado) }}
+            {{ getEstadoLabel(getEstadoActual(solicitud)) }}
           </span>
         </div>
       </div>
@@ -151,29 +151,48 @@ export default {
     }
   },
   setup() {
-    const getPrioridadColor = (nivel) => {
+    const getPrioridadColor = (nivelONombre) => {
+      // Manejar tanto números como nombres de prioridad
       const colores = {
-        1: 'bg-blue-500',
-        2: 'bg-yellow-500',
-        3: 'bg-orange-500',
-        4: 'bg-red-600'
+        // Por nombre (como viene del API)
+        'Baja': 'bg-green-500 text-white shadow-md font-semibold',
+        'Media': 'bg-yellow-500 text-white shadow-md font-semibold',
+        'Alta': 'bg-orange-600 text-white shadow-md font-semibold',
+        'Crítica': 'bg-red-700 text-white shadow-md font-semibold',
+        // Por número (por compatibilidad)
+        1: 'bg-green-500 text-white shadow-md font-semibold',
+        2: 'bg-yellow-500 text-white shadow-md font-semibold',
+        3: 'bg-orange-600 text-white shadow-md font-semibold',
+        4: 'bg-red-700 text-white shadow-md font-semibold'
       }
-      return colores[nivel] || 'bg-gray-500'
+      return colores[nivelONombre] || 'bg-gray-500 text-white shadow-md font-semibold'
     }
 
     const getEstadoColor = (estado) => {
       const colores = {
-        1: 'bg-purple-100 text-purple-800',
-        2: 'bg-blue-100 text-blue-800',
-        3: 'bg-green-100 text-green-800',
-        4: 'bg-gray-100 text-gray-800',
-        5: 'bg-red-100 text-red-800'
+        'Nueva': 'bg-purple-600 text-white shadow-md font-semibold',
+        'En Proceso': 'bg-blue-600 text-white shadow-md font-semibold',
+        'Resuelta': 'bg-green-600 text-white shadow-md font-semibold',
+        'Cerrada': 'bg-gray-700 text-white shadow-md font-semibold',
+        'Cancelada': 'bg-red-600 text-white shadow-md font-semibold',
+        // Fallback para números (por compatibilidad)
+        1: 'bg-purple-600 text-white shadow-md font-semibold',
+        2: 'bg-blue-600 text-white shadow-md font-semibold',
+        3: 'bg-green-600 text-white shadow-md font-semibold',
+        4: 'bg-gray-700 text-white shadow-md font-semibold',
+        5: 'bg-red-600 text-white shadow-md font-semibold'
       }
-      return colores[estado] || 'bg-gray-100 text-gray-800'
+      return colores[estado] || 'bg-gray-500 text-white shadow-md font-semibold'
     }
 
     const getEstadoLabel = (estado) => {
       const labels = {
+        'Nueva': 'Nueva',
+        'En Proceso': 'En Proceso',
+        'Resuelta': 'Resuelta',
+        'Cerrada': 'Cerrada',
+        'Cancelada': 'Cancelada',
+        // Fallback para números (por compatibilidad)
         1: 'Nueva',
         2: 'En Proceso',
         3: 'Resuelta',
@@ -183,10 +202,17 @@ export default {
       return labels[estado] || 'Desconocido'
     }
 
+    const getEstadoActual = (solicitud) => {
+      // El API envía el campo estado directamente como string
+      // Simplemente devolver el estado tal como viene
+      return solicitud.estado || 'Nueva'
+    }
+
     return {
       getPrioridadColor,
       getEstadoColor,
-      getEstadoLabel
+      getEstadoLabel,
+      getEstadoActual
     }
   }
 }

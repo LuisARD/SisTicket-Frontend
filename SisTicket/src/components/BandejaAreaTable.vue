@@ -160,21 +160,21 @@ const userGestorId = computed(() => authStore.user?.id)
 
 const getPrioridadClass = (prioridad) => {
   const classes = {
-    'Crítica': 'px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium',
-    'Alta': 'px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-medium',
-    'Media': 'px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium',
-    'Baja': 'px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium',
+    'Crítica': 'px-3 py-1 bg-red-700 text-white rounded-full text-xs font-semibold shadow-md',
+    'Alta': 'px-3 py-1 bg-orange-600 text-white rounded-full text-xs font-semibold shadow-md',
+    'Media': 'px-3 py-1 bg-yellow-500 text-white rounded-full text-xs font-semibold shadow-md',
+    'Baja': 'px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold shadow-md',
   }
-  return classes[prioridad] || 'px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-medium'
+  return classes[prioridad] || 'px-3 py-1 bg-gray-500 text-white rounded-full text-xs font-semibold shadow-md'
 }
 
 const getEstadoClass = (estado) => {
   const classes = {
-    'Abierta': 'px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium',
-    'En Progreso': 'px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-medium',
-    'Resuelta': 'px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium',
-    'Cerrada': 'px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-medium',
+    'Abierta': 'px-3 py-1 bg-purple-600 text-white rounded-full text-xs font-semibold shadow-md',
+    'En Progreso': 'px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-semibold shadow-md',
+    'Resuelta': 'px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold shadow-md',
+    'Cerrada': 'px-3 py-1 bg-gray-700 text-white rounded-full text-xs font-semibold shadow-md',
   }
-  return classes[estado] || 'px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-medium'
+  return classes[estado] || 'px-3 py-1 bg-gray-500 text-white rounded-full text-xs font-semibold shadow-md'
 }
 </script>

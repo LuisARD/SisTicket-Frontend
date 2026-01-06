@@ -9,7 +9,7 @@
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Mis Solicitudes</h2>
         <button
-          @click="crearSolicitud"
+          @click="abrirModalCrear"
           class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition text-sm sm:text-base"
         >
           + Crear Solicitud
@@ -105,7 +105,7 @@
 
     <!-- Botón FAB para crear solicitud (Mobile) -->
     <button
-      @click="crearSolicitud"
+      @click="abrirModalCrear"
       class="fixed bottom-24 right-6 w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition sm:hidden"
       title="Crear nueva solicitud"
     >
@@ -113,21 +113,28 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
     </button>
+
+    <!-- Modal Crear Solicitud -->
+    <CrearSolicitudModal
+      :is-open="modalCrearIsOpen"
+      @close="cerrarModalCrear"
+      @success="handleCrearSuccess"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
 import SolicitudesTable from '../components/SolicitudesTable.vue'
+import CrearSolicitudModal from '../components/CrearSolicitudModal.vue'
+import { useMisSolicitudes } from '../composables/useMisSolicitudes'
 
-const router = useRouter()
+const { solicitudes, isLoading, cargarMisSolicitudes } = useMisSolicitudes()
 
 const searchQuery = ref('')
-const isLoading = ref(false)
-const solicitudesFiltradas = ref([])
+const modalCrearIsOpen = ref(false)
 
 const filtros = ref({
   estado: '',
@@ -136,11 +143,50 @@ const filtros = ref({
   fechaHasta: ''
 })
 
+// Filtrar solicitudes según búsqueda y filtros
+const solicitudesFiltradas = computed(() => {
+  let resultado = solicitudes.value
+
+  // Filtrar por búsqueda
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase()
+    resultado = resultado.filter(s =>
+      s.titulo?.toLowerCase().includes(query) ||
+      s.asunto?.toLowerCase().includes(query) ||
+      s.numero?.toString().includes(query) ||
+      s.descripcion?.toLowerCase().includes(query)
+    )
+  }
+
+  // Filtrar por estado
+  if (filtros.value.estado) {
+    resultado = resultado.filter(s => s.estado === filtros.value.estado)
+  }
+
+  // Filtrar por prioridad
+  if (filtros.value.prioridadId) {
+    resultado = resultado.filter(s => s.prioridadId === parseInt(filtros.value.prioridadId))
+  }
+
+  // Filtrar por rango de fechas
+  if (filtros.value.fechaDesde) {
+    const fechaDesde = new Date(filtros.value.fechaDesde)
+    resultado = resultado.filter(s => new Date(s.fechaCreacion) >= fechaDesde)
+  }
+
+  if (filtros.value.fechaHasta) {
+    const fechaHasta = new Date(filtros.value.fechaHasta)
+    fechaHasta.setHours(23, 59, 59, 999)
+    resultado = resultado.filter(s => new Date(s.fechaCreacion) <= fechaHasta)
+  }
+
+  return resultado
+})
+
 const aplicarFiltros = async () => {
-  isLoading.value = true
-  // Aquí irá la lógica para obtener solicitudes del usuario
-  // Por ahora es un placeholder
-  isLoading.value = false
+  // Los filtros se aplican automáticamente a través del computed
+  // Solo refrescamos los datos
+  await cargarMisSolicitudes()
 }
 
 const limpiarFiltros = () => {
@@ -153,8 +199,17 @@ const limpiarFiltros = () => {
   }
 }
 
-const crearSolicitud = () => {
-  // Redirigir a la vista de crear solicitud cuando esté lista
-  router.push('/crear-solicitud')
+const abrirModalCrear = () => {
+  modalCrearIsOpen.value = true
+}
+
+const cerrarModalCrear = () => {
+  modalCrearIsOpen.value = false
+}
+
+const handleCrearSuccess = () => {
+  cerrarModalCrear()
+  // Recargar la lista de solicitudes
+  cargarMisSolicitudes()
 }
 </script>
