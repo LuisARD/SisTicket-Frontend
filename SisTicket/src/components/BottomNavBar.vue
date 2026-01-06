@@ -2,8 +2,9 @@
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-40">
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex justify-around items-center h-20 sm:h-24">
-        <!-- Solicitudes -->
+        <!-- Todas las Solicitudes (Gestor y Admin/SuperAdmin) -->
         <RouterLink
+          v-if="puedeVerTodasSolicitudes"
           to="/solicitudes"
           :class="[
             'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
@@ -22,9 +23,9 @@
           <span class="text-xs sm:text-sm font-semibold">Solicitudes</span>
         </RouterLink>
 
-        <!-- Catálogos (Solo Admins) -->
+        <!-- Catálogos (Todos pueden ver, solo Solicitante/Gestor/Admin/SuperAdmin) -->
         <RouterLink
-          v-if="esAdmin"
+          v-if="puedeVerCatalogos"
           to="/catalogos"
           :class="[
             'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
@@ -41,7 +42,7 @@
           <span class="text-xs sm:text-sm font-semibold">Catálogos</span>
         </RouterLink>
 
-        <!-- Bandeja de Área (Gestores y Admins) -->
+        <!-- Bandeja de Área (Solo SuperAdmin) -->
         <RouterLink
           v-if="puedeVerBandeja"
           to="/bandeja-area"
@@ -60,8 +61,9 @@
           <span class="text-xs sm:text-sm font-semibold">Bandeja</span>
         </RouterLink>
 
-        <!-- Mis Solicitudes -->
+        <!-- Mis Solicitudes (Todos menos Gestor) -->
         <RouterLink
+          v-if="puedeVerMisSolicitudes"
           to="/mis-solicitudes"
           :class="[
             'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
@@ -80,9 +82,9 @@
           <span class="text-xs sm:text-sm font-semibold">Mis Solicitudes</span>
         </RouterLink>
 
-        <!-- Gestión de Usuarios (Solo Admins) -->
+        <!-- Gestión de Usuarios (Solo SuperAdmin) -->
         <RouterLink
-          v-if="esAdmin"
+          v-if="puedeVerUsuarios"
           to="/usuarios"
           :class="[
             'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
@@ -112,27 +114,60 @@ export default {
   name: 'BottomNavBar',
   setup() {
     const route = useRoute()
+    const authStoreInstance = authStore
 
     const isActive = computed(() => (path) => {
       return route.path === path || route.path.startsWith(path + '/')
     })
 
-    const esAdmin = computed(() => {
-      const rol = authStore.user?.rol
-      return rol === 'Admin' || rol === 'SuperAdmin' || rol === 3 || rol === 4
-    })
+    // Rol 1 = Solicitante, Rol 2 = Gestor, Rol 3 = Admin, Rol 4 = SuperAdmin
+    const getRol = computed(() => authStoreInstance.user?.rol)
 
-    const esGestor = computed(() => {
-      const rol = authStore.user?.rol
-      return rol === 'Gestor' || rol === 2
-    })
+    // Solicitante (1): Solo catálogos (ver) y mis solicitudes
+    const esSolicitante = computed(() => getRol.value === 1 || getRol.value === 'Solicitante')
+    
+    // Gestor (2)
+    const esGestor = computed(() => getRol.value === 2 || getRol.value === 'Gestor')
+    
+    // Admin (3)
+    const esAdmin = computed(() => getRol.value === 3 || getRol.value === 'Admin')
+    
+    // SuperAdmin (4)
+    const esSuperAdmin = computed(() => getRol.value === 4 || getRol.value === 'SuperAdmin')
 
-    const puedeVerBandeja = computed(() => esAdmin.value || esGestor.value)
+    // Permisos de navegación
+    // Catálogos: Solicitante, Gestor, Admin, SuperAdmin (solo ver, no editar)
+    const puedeVerCatalogos = computed(() => 
+      esSolicitante.value || esGestor.value || esAdmin.value || esSuperAdmin.value
+    )
+
+    // Mis Solicitudes: Solicitante, Admin, SuperAdmin (NO Gestor)
+    const puedeVerMisSolicitudes = computed(() => 
+      esSolicitante.value || esAdmin.value || esSuperAdmin.value
+    )
+
+    // Todas las Solicitudes: Gestor, Admin, SuperAdmin (NO Solicitante)
+    const puedeVerTodasSolicitudes = computed(() => 
+      esGestor.value || esAdmin.value || esSuperAdmin.value
+    )
+
+    // Bandeja de Área: Solo SuperAdmin (4)
+    const puedeVerBandeja = computed(() => 
+      esSuperAdmin.value
+    )
+
+    // Gestión de Usuarios: Solo SuperAdmin
+    const puedeVerUsuarios = computed(() => 
+      esSuperAdmin.value
+    )
 
     return {
       isActive,
-      esAdmin,
-      puedeVerBandeja
+      puedeVerCatalogos,
+      puedeVerMisSolicitudes,
+      puedeVerTodasSolicitudes,
+      puedeVerBandeja,
+      puedeVerUsuarios
     }
   }
 }

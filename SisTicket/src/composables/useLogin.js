@@ -19,7 +19,15 @@ export const useLogin = () => {
     isLoading.value = true
     try {
       await authStore.login(nombreUsuario, password)
-      router.push('/solicitudes')
+      
+      // Redirigir según el rol del usuario
+      const rol = authStore.user?.rol
+      if (rol === 1 || rol === 'Solicitante') {
+        router.push('/mis-solicitudes')
+      } else {
+        router.push('/solicitudes')
+      }
+      
       return true
     } catch (err) {
       error.value = authStore.error || 'Error al iniciar sesión'

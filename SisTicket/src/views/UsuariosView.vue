@@ -242,8 +242,9 @@ import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
 import UsuarioModal from '../components/UsuarioModal.vue'
 import { useUsuarios } from '../composables/useUsuarios'
+import { useCatalogos } from '../composables/useCatalogos'
 
-// Usar el composable
+// Usar composables
 const {
   usuariosFiltrados,
   searchQuery,
@@ -265,10 +266,11 @@ const {
   getEstadoLabel
 } = useUsuarios()
 
+const { areas } = useCatalogos()
+
 // Modal state
 const mostrarModal = ref(false)
 const usuarioEditar = ref(null)
-const areas = ref([]) // TODO: Cargar desde API
 
 /**
  * Abre el modal para crear usuario

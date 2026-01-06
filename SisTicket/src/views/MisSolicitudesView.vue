@@ -97,7 +97,11 @@
       </div>
 
       <!-- Tabla de Solicitudes -->
-      <SolicitudesTable :solicitudes="solicitudesFiltradas" />
+      <SolicitudesTable 
+        :solicitudes="solicitudesFiltradas"
+        :mostrarAccionesEditar="true"
+        @editar-solicitud="handleEditarSolicitud"
+      />
     </div>
 
     <!-- Bottom NavBar -->
@@ -120,6 +124,14 @@
       @close="cerrarModalCrear"
       @success="handleCrearSuccess"
     />
+
+    <!-- Modal Editar Solicitud -->
+    <EditarSolicitudModal
+      :is-open="modalEditarIsOpen"
+      :solicitud="solicitudEditando"
+      @close="cerrarModalEditar"
+      @success="handleEditarSuccess"
+    />
   </div>
 </template>
 
@@ -129,12 +141,19 @@ import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
 import SolicitudesTable from '../components/SolicitudesTable.vue'
 import CrearSolicitudModal from '../components/CrearSolicitudModal.vue'
+import EditarSolicitudModal from '../components/EditarSolicitudModal.vue'
 import { useMisSolicitudes } from '../composables/useMisSolicitudes'
+import { authStore } from '../stores/authStore'
+import { useNotification } from '../composables/useNotification'
 
 const { solicitudes, isLoading, cargarMisSolicitudes } = useMisSolicitudes()
+const authStoreInstance = authStore
+const { error: mostrarError } = useNotification()
 
 const searchQuery = ref('')
 const modalCrearIsOpen = ref(false)
+const modalEditarIsOpen = ref(false)
+const solicitudEditando = ref(null)
 
 const filtros = ref({
   estado: '',
@@ -209,6 +228,32 @@ const cerrarModalCrear = () => {
 
 const handleCrearSuccess = () => {
   cerrarModalCrear()
+  // Recargar la lista de solicitudes
+  cargarMisSolicitudes()
+}
+
+const handleEditarSolicitud = (solicitud) => {
+  // Validar si puede editar
+  const estadoNueva = solicitud.estado === 1 || solicitud.estado === '1' || solicitud.estado === 'Nueva'
+  const esAdmin = authStoreInstance.user?.rol === 3 || authStoreInstance.user?.rol === 4 || 
+                  authStoreInstance.user?.rol === 'Admin' || authStoreInstance.user?.rol === 'SuperAdmin'
+  
+  if (!estadoNueva && !esAdmin) {
+    mostrarError('No puedes editar esta solicitud. Solo puedes editar solicitudes en estado Nueva.')
+    return
+  }
+  
+  solicitudEditando.value = solicitud
+  modalEditarIsOpen.value = true
+}
+
+const cerrarModalEditar = () => {
+  modalEditarIsOpen.value = false
+  solicitudEditando.value = null
+}
+
+const handleEditarSuccess = () => {
+  cerrarModalEditar()
   // Recargar la lista de solicitudes
   cargarMisSolicitudes()
 }

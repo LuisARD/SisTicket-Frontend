@@ -30,37 +30,37 @@ const routes = [
     path: '/solicitudes',
     name: 'Solicitudes',
     component: SolicitudesView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, forbiddenRoles: [1] } // Solicitante NO puede ver
   },
   {
     path: '/detalle-solicitud/:id',
     name: 'SolicitudDetalle',
     component: SolicitudDetalleView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, forbiddenRoles: [1] } // Solicitante NO puede ver
   },
   {
     path: '/mis-solicitudes',
     name: 'MisSolicitudes',
     component: MisSolicitudesView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, forbiddenRoles: [2] } // Gestor NO puede ver
   },
   {
     path: '/catalogos',
     name: 'Catalogos',
     component: CatalogosView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true } // Todos pueden ver
   },
   {
     path: '/bandeja-area',
     name: 'BandejaArea',
     component: BandejaAreaView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresSuperAdmin: true } // Solo SuperAdmin
   },
   {
     path: '/usuarios',
     name: 'Usuarios',
     component: UsuariosView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresSuperAdmin: true } // Solo SuperAdmin
   }
 ]
 
@@ -72,14 +72,39 @@ const router = createRouter({
 // Guard para proteger rutas
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth
+  const requiresSuperAdmin = to.meta.requiresSuperAdmin
+  const forbiddenRoles = to.meta.forbiddenRoles || []
+  const rol = authStore.user?.rol
 
+  // 1. Verificar autenticación
   if (requiresAuth && !authStore.isAuthenticated) {
     next('/login')
-  } else if (to.path === '/login' && authStore.isAuthenticated) {
-    next('/solicitudes')
-  } else {
-    next()
+    return
   }
+
+  // 2. Si está autenticado y va al login, redirigir a solicitudes
+  if (to.path === '/login' && authStore.isAuthenticated) {
+    next('/solicitudes')
+    return
+  }
+
+  // 3. Verificar si el rol está en la lista de prohibidos
+  if (forbiddenRoles.includes(rol)) {
+    next('/solicitudes')
+    return
+  }
+
+  // 4. Verificar si requiere SuperAdmin
+  if (requiresSuperAdmin) {
+    if (rol === 4 || rol === 'SuperAdmin') {
+      next()
+    } else {
+      next('/solicitudes')
+    }
+    return
+  }
+
+  next()
 })
 
 export default router

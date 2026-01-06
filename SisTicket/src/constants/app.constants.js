@@ -3,24 +3,24 @@ export const ESTADOS_SOLICITUD = {
   NUEVA: 1,
   EN_PROCESO: 2,
   RESUELTA: 3,
-  CERRADA: 4,
-  CANCELADA: 5
+  RECHAZADA: 4,
+  CERRADA: 5
 }
 
 export const ESTADO_LABELS = {
   1: 'Nueva',
   2: 'En Proceso',
   3: 'Resuelta',
-  4: 'Cerrada',
-  5: 'Cancelada'
+  4: 'Rechazada',
+  5: 'Cerrada'
 }
 
 export const ESTADO_COLORS = {
   1: 'bg-purple-100 text-purple-800',
   2: 'bg-blue-100 text-blue-800',
   3: 'bg-green-100 text-green-800',
-  4: 'bg-gray-100 text-gray-800',
-  5: 'bg-red-100 text-red-800'
+  4: 'bg-red-100 text-red-800',
+  5: 'bg-gray-100 text-gray-800'
 }
 
 // Prioridades

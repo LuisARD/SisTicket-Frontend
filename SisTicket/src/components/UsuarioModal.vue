@@ -155,7 +155,7 @@
           <!-- Área (opcional) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Área <span class="text-gray-500 text-xs">(Opcional)</span>
+              Área <span class="text-gray-500 text-xs"></span>
             </label>
             <select
               v-model="formData.areaId"

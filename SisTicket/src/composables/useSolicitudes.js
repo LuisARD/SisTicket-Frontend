@@ -1,5 +1,6 @@
 import { ref, computed, onMounted } from 'vue'
 import solicitudesService from '../services/solicitudesService'
+import { mapearEstadoANumero } from '../utils/estadoMapper'
 
 export const useSolicitudes = () => {
   const solicitudes = ref([])
@@ -65,13 +66,30 @@ export const useSolicitudes = () => {
     })
   })
 
-  const estadisticas = computed(() => ({
-    total: solicitudes.value.length,
-    nuevas: solicitudes.value.filter((s) => s.estado === 1).length,
-    enProceso: solicitudes.value.filter((s) => s.estado === 2).length,
-    resueltas: solicitudes.value.filter((s) => s.estado === 3).length,
-    cerradas: solicitudes.value.filter((s) => s.estado === 4).length
-  }))
+  const estadisticas = computed(() => {
+    console.log('Recalculando estadísticas con', solicitudes.value.length, 'solicitudes')
+    
+    const stats = {
+      total: solicitudes.value.length,
+      nuevas: 0,
+      enProceso: 0,
+      resueltas: 0,
+      cerradas: 0
+    }
+
+    solicitudes.value.forEach((s) => {
+      const estado = mapearEstadoANumero(s.estado)
+      console.log('Solicitud', s.numeroSolicitud, 'Estado original:', s.estado, 'Mapeado:', estado)
+      
+      if (estado === 1) stats.nuevas++
+      else if (estado === 2) stats.enProceso++
+      else if (estado === 3) stats.resueltas++
+      else if (estado === 5) stats.cerradas++
+    })
+
+    console.log('Estadísticas calculadas:', stats)
+    return stats
+  })
 
   onMounted(cargarSolicitudes)
 

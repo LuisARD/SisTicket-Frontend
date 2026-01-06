@@ -1,19 +1,19 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg max-w-2xl w-full shadow-xl">
+  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-lg w-full max-w-sm sm:max-w-lg md:max-w-2xl shadow-xl max-h-[90vh] flex flex-col">
       <!-- Encabezado -->
-      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <h3 class="text-lg font-semibold text-gray-900">Nueva Solicitud</h3>
+      <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex justify-between items-center flex-shrink-0">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900">Nueva Solicitud</h3>
         <button
           @click="$emit('close')"
-          class="text-gray-400 hover:text-gray-600 transition"
+          class="text-gray-400 hover:text-gray-600 transition text-xl sm:text-base"
         >
           ✕
         </button>
       </div>
 
       <!-- Contenido del Formulario -->
-      <form @submit.prevent="guardar" class="px-6 py-4 space-y-4 max-h-96 overflow-y-auto">
+      <form @submit.prevent="guardar" class="px-4 sm:px-6 py-4 space-y-4 overflow-y-auto flex-1">
         <!-- Área -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -122,18 +122,18 @@
         </div>
 
         <!-- Botones -->
-        <div class="flex gap-3 pt-4 border-t">
+        <div class="flex gap-2 sm:gap-3 pt-4 border-t flex-shrink-0\">
           <button
             type="button"
             @click="$emit('close')"
-            class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-sm transition"
+            class="flex-1 px-3 sm:px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-xs sm:text-sm transition"
             :disabled="isLoading"
           >
             Salir
           </button>
           <button
             type="submit"
-            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex-1 px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="isLoading"
           >
             {{ isLoading ? 'Guardando...' : 'Guardar' }}

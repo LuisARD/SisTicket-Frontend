@@ -102,10 +102,20 @@ const solicitudesService = {
     }
   },
 
+  eliminarComentario: async (solicitudId, comentarioId) => {
+    try {
+      const response = await api.delete(`/Solicitudes/${solicitudId}/comentarios/${comentarioId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error eliminando comentario:', error.message)
+      throw error
+    }
+  },
+
   getSolicitudesDetalleById: async (id) => {
     try {
       const response = await api.get(`/Solicitudes/${id}`)
-      return response
+      return response.data
     } catch (error) {
       console.error('Error obteniendo detalle de solicitud:', error.message)
       throw error
@@ -115,7 +125,7 @@ const solicitudesService = {
   getGestoresDisponibles: async () => {
     try {
       const response = await api.get('/Usuarios/gestores')
-      return response
+      return response.data
     } catch (error) {
       console.error('Error obteniendo gestores:', error.message)
       throw error
@@ -136,9 +146,51 @@ const solicitudesService = {
 
       const response = await api.get(url)
       console.log('Mis solicitudes obtenidas:', response.data)
-      return response
+      return response.data
     } catch (error) {
       console.error('Error obteniendo mis solicitudes:', error.message)
+      throw error
+    }
+  },
+
+  getAdjuntos: async (solicitudId) => {
+    try {
+      const response = await api.get(`/Solicitudes/${solicitudId}/adjuntos`)
+      return response.data
+    } catch (error) {
+      console.error('Error obteniendo adjuntos:', error.message)
+      throw error
+    }
+  },
+
+  descargarAdjunto: (solicitudId, adjuntoId) => {
+    // Devuelve la URL para descargar el adjunto
+    return `/Solicitudes/${solicitudId}/adjuntos/descargar?id=${adjuntoId}`
+  },
+
+  eliminarAdjunto: async (solicitudId, adjuntoId) => {
+    try {
+      const response = await api.delete(`/Solicitudes/${solicitudId}/adjuntos/${adjuntoId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error eliminando adjunto:', error.message)
+      throw error
+    }
+  },
+
+  cargarAdjunto: async (solicitudId, archivo) => {
+    try {
+      const formData = new FormData()
+      formData.append('archivo', archivo)
+      
+      const response = await api.post(`/Solicitudes/${solicitudId}/adjuntos`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error cargando adjunto:', error.message)
       throw error
     }
   }

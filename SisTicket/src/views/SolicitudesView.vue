@@ -32,8 +32,8 @@
               <option value="1">Nueva</option>
               <option value="2">En Proceso</option>
               <option value="3">Resuelta</option>
-              <option value="4">Cerrada</option>
-              <option value="5">Cancelada</option>
+              <option value="4">Rechazada</option>
+              <option value="5">Cerrada</option>
             </select>
           </div>
 
@@ -106,7 +106,7 @@
           <p class="text-xs sm:text-sm text-gray-600 mb-2">Resueltas</p>
           <p class="text-2xl sm:text-3xl font-bold text-green-600">{{ estadisticas.resueltas }}</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg p-4 text-center col-span-2 sm:col-span-1">
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
           <p class="text-xs sm:text-sm text-gray-600 mb-2">Cerradas</p>
           <p class="text-2xl sm:text-3xl font-bold text-gray-600">{{ estadisticas.cerradas }}</p>
         </div>

@@ -57,7 +57,9 @@
               </span>
             </td>
             <td class="px-4 py-3 text-center">
+              <!-- Botón Ver (default) -->
               <RouterLink
+                v-if="!mostrarAccionesEditar"
                 :to="`/detalle-solicitud/${solicitud.id}`"
                 class="text-indigo-600 hover:text-indigo-800 transition"
                 title="Ver detalles"
@@ -71,6 +73,20 @@
                   />
                 </svg>
               </RouterLink>
+
+              <!-- Botones Editar y Borrar (si mostrarAccionesEditar) -->
+              <div v-else class="flex gap-2 justify-center">
+                <!-- Botón Editar -->
+                <button
+                  @click="$emit('editar-solicitud', solicitud)"
+                  class="text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-2 rounded transition"
+                  title="Editar solicitud"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -89,7 +105,9 @@
             <p class="text-xs font-semibold text-gray-500">{{ solicitud.numeroSolicitud }}</p>
             <p class="text-sm font-semibold text-gray-800">{{ solicitud.titulo }}</p>
           </div>
+          <!-- Botón Ver (default) -->
           <RouterLink
+            v-if="!mostrarAccionesEditar"
             :to="`/detalle-solicitud/${solicitud.id}`"
             class="text-indigo-600 hover:text-indigo-800"
           >
@@ -102,6 +120,18 @@
               />
             </svg>
           </RouterLink>
+          <!-- Botones Editar y Borrar (si mostrarAccionesEditar) -->
+          <div v-else class="flex gap-2">
+            <button
+              @click="$emit('editar-solicitud', solicitud)"
+              class="text-blue-600 hover:text-blue-800"
+              title="Editar solicitud"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="space-y-2 text-xs text-gray-600">
@@ -142,25 +172,32 @@
 </template>
 
 <script>
+import { mapearEstadoANumero, mapearEstadoANombre } from '../utils/estadoMapper'
+
 export default {
   name: 'SolicitudesTable',
   props: {
     solicitudes: {
       type: Array,
       default: () => []
+    },
+    mostrarAccionesEditar: {
+      type: Boolean,
+      default: false
     }
   },
+  emits: ['editar-solicitud'],
   setup() {
     const getPrioridadColor = (nivelONombre) => {
       // Manejar tanto números como nombres de prioridad
       const colores = {
         // Por nombre (como viene del API)
-        'Baja': 'bg-green-500 text-white shadow-md font-semibold',
+        'Baja': 'bg-sky-500 text-white shadow-md font-semibold',
         'Media': 'bg-yellow-500 text-white shadow-md font-semibold',
         'Alta': 'bg-orange-600 text-white shadow-md font-semibold',
         'Crítica': 'bg-red-700 text-white shadow-md font-semibold',
         // Por número (por compatibilidad)
-        1: 'bg-green-500 text-white shadow-md font-semibold',
+        1: 'bg-sky-500 text-white shadow-md font-semibold',
         2: 'bg-yellow-500 text-white shadow-md font-semibold',
         3: 'bg-orange-600 text-white shadow-md font-semibold',
         4: 'bg-red-700 text-white shadow-md font-semibold'
@@ -168,51 +205,42 @@ export default {
       return colores[nivelONombre] || 'bg-gray-500 text-white shadow-md font-semibold'
     }
 
+    const mapearEstado = (estado) => {
+      // Convertir números a strings de estado
+      const num = mapearEstadoANumero(estado)
+      return mapearEstadoANombre(num)
+    }
+
     const getEstadoColor = (estado) => {
+      // Asegurar que tenemos un string de estado
+      const estadoStr = mapearEstado(estado)
       const colores = {
-        'Nueva': 'bg-purple-600 text-white shadow-md font-semibold',
+        'Nueva': 'bg-green-600 text-white shadow-md font-semibold',
         'En Proceso': 'bg-blue-600 text-white shadow-md font-semibold',
         'Resuelta': 'bg-green-600 text-white shadow-md font-semibold',
+        'Rechazada': 'bg-orange-600 text-white shadow-md font-semibold',
         'Cerrada': 'bg-gray-700 text-white shadow-md font-semibold',
-        'Cancelada': 'bg-red-600 text-white shadow-md font-semibold',
-        // Fallback para números (por compatibilidad)
-        1: 'bg-purple-600 text-white shadow-md font-semibold',
-        2: 'bg-blue-600 text-white shadow-md font-semibold',
-        3: 'bg-green-600 text-white shadow-md font-semibold',
-        4: 'bg-gray-700 text-white shadow-md font-semibold',
-        5: 'bg-red-600 text-white shadow-md font-semibold'
+        'Cancelada': 'bg-red-600 text-white shadow-md font-semibold'
       }
-      return colores[estado] || 'bg-gray-500 text-white shadow-md font-semibold'
+      return colores[estadoStr] || 'bg-gray-500 text-white shadow-md font-semibold'
     }
 
     const getEstadoLabel = (estado) => {
-      const labels = {
-        'Nueva': 'Nueva',
-        'En Proceso': 'En Proceso',
-        'Resuelta': 'Resuelta',
-        'Cerrada': 'Cerrada',
-        'Cancelada': 'Cancelada',
-        // Fallback para números (por compatibilidad)
-        1: 'Nueva',
-        2: 'En Proceso',
-        3: 'Resuelta',
-        4: 'Cerrada',
-        5: 'Cancelada'
-      }
-      return labels[estado] || 'Desconocido'
+      // Simplemente mapear y devolver
+      return mapearEstado(estado)
     }
 
     const getEstadoActual = (solicitud) => {
-      // El API envía el campo estado directamente como string
-      // Simplemente devolver el estado tal como viene
-      return solicitud.estado || 'Nueva'
+      // Devolver el estado mapeado
+      return mapearEstado(solicitud.estado)
     }
 
     return {
       getPrioridadColor,
       getEstadoColor,
       getEstadoLabel,
-      getEstadoActual
+      getEstadoActual,
+      mapearEstado
     }
   }
 }

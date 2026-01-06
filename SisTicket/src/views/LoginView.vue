@@ -80,12 +80,6 @@
           </button>
         </form>
 
-        <!-- Footer -->
-        <p class="text-center text-gray-500 text-xs mt-6 sm:mt-8 leading-relaxed">
-          <span class="block mb-2"><strong>Usuarios de prueba:</strong></span>
-          <span class="block">cesar/cesar • admin/password</span>
-          <span class="block">gestor/password • usuario/password</span>
-        </p>
       </div>
     </div>
   </div>
