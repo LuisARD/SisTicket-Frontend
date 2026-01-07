@@ -152,20 +152,28 @@
             <p v-if="getError('rol')" class="text-sm text-red-500 mt-1">{{ getError('rol') }}</p>
           </div>
 
-          <!-- Área (opcional) -->
-          <div>
+          <!-- Área (solo requerida para Gestor) -->
+          <div v-if="formData.rol === '2'">
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Área <span class="text-gray-500 text-xs"></span>
+              Área
+              <span class="text-red-500">*</span>
             </label>
             <select
               v-model="formData.areaId"
-              class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 transition"
+              @blur="validarCampo('areaId')"
+              :class="[
+                'w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition',
+                hasError('areaId')
+                  ? 'border-red-500 focus:border-red-600'
+                  : 'border-gray-300 focus:border-indigo-600'
+              ]"
             >
-              <option value="">Sin asignar</option>
+              <option value="">-- Selecciona un área --</option>
               <option v-for="area in areas" :key="area.id" :value="area.id">
                 {{ area.nombre }}
               </option>
             </select>
+            <p v-if="getError('areaId')" class="text-sm text-red-500 mt-1">{{ getError('areaId') }}</p>
           </div>
 
           <!-- Botones -->
@@ -243,17 +251,21 @@ const getValidationRules = () => {
       nombreUsuario: { required: false, minLength: 3, maxLength: 50 },
       email: { required: false, email: true },
       password: { required: false, minLength: 6 },
-      rol: { required: false }
+      rol: { required: false },
+      areaId: { required: false }
     }
   } else {
     // Al crear: campos requeridos
+    // areaId es requerido solo si el rol es Gestor (2)
+    const areaRequired = formData.value.rol === '2'
     return {
       nombre: { required: true, minLength: 2, maxLength: 100 },
       apellido: { required: true, minLength: 2, maxLength: 100 },
       nombreUsuario: { required: true, minLength: 3, maxLength: 50 },
       email: { required: true, email: true },
       password: { required: true, minLength: 6 },
-      rol: { required: true }
+      rol: { required: true },
+      areaId: { required: areaRequired }
     }
   }
 }

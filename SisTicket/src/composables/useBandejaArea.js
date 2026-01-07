@@ -70,11 +70,12 @@ export const useBandejaArea = () => {
       const response = await api.get('/Usuarios')
       const todosLosUsuarios = Array.isArray(response.data) ? response.data : []
       
-      // Filtrar: rol = 2 (Gestor) AND areaId = areaId de la solicitud
+      // Filtrar: rol = 2 (Gestor) AND areaId = areaId de la solicitud AND activo = true
       const gestoresDelArea = todosLosUsuarios.filter(usuario => {
         const esGestor = usuario.rol === 2 || usuario.rol === 'Gestor'
         const esDelArea = usuario.areaId === parseInt(areaId) || usuario.areaId === areaId
-        return esGestor && esDelArea
+        const estaActivo = usuario.activo === true
+        return esGestor && esDelArea && estaActivo
       })
       
       return gestoresDelArea

@@ -174,6 +174,50 @@ export function useUsuarios() {
   const usuariosActivos = computed(() => usuarios.value.filter(u => u.activo).length)
   const usuariosInactivos = computed(() => usuarios.value.filter(u => !u.activo).length)
 
+  /**
+   * Estadísticas de usuarios (por rol)
+   */
+  const estadisticas = computed(() => {
+    const stats = {
+      total: usuarios.value.length,
+      activos: usuariosActivos.value,
+      inactivos: usuariosInactivos.value,
+      solicitantes: 0,
+      gestores: 0,
+      admins: 0,
+      superAdmins: 0,
+      activosPorRol: {
+        solicitantes: 0,
+        gestores: 0,
+        admins: 0,
+        superAdmins: 0
+      },
+      inactivosPorRol: {
+        solicitantes: 0,
+        gestores: 0,
+        admins: 0,
+        superAdmins: 0
+      }
+    }
+
+    usuarios.value.forEach((u) => {
+      const rolMap = { 'Solicitante': 'solicitantes', 'Gestor': 'gestores', 'Admin': 'admins', 'SuperAdmin': 'superAdmins' }
+      const rolKey = rolMap[u.rol] || null
+
+      if (rolKey) {
+        stats[rolKey]++
+
+        if (u.activo) {
+          stats.activosPorRol[rolKey]++
+        } else {
+          stats.inactivosPorRol[rolKey]++
+        }
+      }
+    })
+
+    return stats
+  })
+
   return {
     // Estado
     usuarios,
@@ -188,6 +232,7 @@ export function useUsuarios() {
     totalUsuarios,
     usuariosActivos,
     usuariosInactivos,
+    estadisticas,
     // Métodos
     aplicarFiltros,
     limpiarFiltros,

@@ -623,7 +623,7 @@ export default {
       return !estaBloqueada.value
     })
 
-    // Computed que retorna los estados disponibles según el estado actual
+    // Computed que retorna los estados disponibles según el estado actual y el rol
     const estadosDisponibles = computed(() => {
       if (!solicitud.value?.estado) {
         console.log('Sin estado en solicitud')
@@ -647,7 +647,16 @@ export default {
         return []
       }
       
-      const estadosValidos = TRANSICIONES_VALIDAS[estadoActual] || []
+      let estadosValidos = TRANSICIONES_VALIDAS[estadoActual] || []
+      
+      // Filtrar estados según el rol:
+      // - Gestores (rol 2) solo pueden cambiar a Resuelta (3)
+      // - Admin y SuperAdmin (roles 3 y 4) pueden cambiar a cualquier estado válido
+      if (esGestor.value && !esAdmin.value && !esSuperAdmin.value) {
+        // Gestor: solo permitir Resuelta (3)
+        estadosValidos = estadosValidos.filter(estadoId => estadoId === 3)
+      }
+      
       console.log('Estados válidos disponibles:', estadosValidos)
       
       const resultado = estadosValidos.map(estadoId => ({
@@ -710,11 +719,12 @@ export default {
         const response = await api.get('/Usuarios')
         const todosLosUsuarios = Array.isArray(response.data) ? response.data : []
         
-        // Filtrar: rol = 2 (Gestor) AND areaId = areaId de la solicitud
+        // Filtrar: rol = 2 (Gestor) AND areaId = areaId de la solicitud AND activo = true
         const gestoresDelArea = todosLosUsuarios.filter(usuario => {
           const esGestor = usuario.rol === 2 || usuario.rol === 'Gestor'
           const esDelArea = usuario.areaId === parseInt(solicitud.value.areaId) || usuario.areaId === solicitud.value.areaId
-          return esGestor && esDelArea
+          const estaActivo = usuario.activo === true
+          return esGestor && esDelArea && estaActivo
         })
         
         gestores.value = gestoresDelArea

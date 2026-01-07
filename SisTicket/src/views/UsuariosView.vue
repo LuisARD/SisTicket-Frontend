@@ -88,6 +88,34 @@
         </div>
       </div>
 
+      <!-- Estadísticas de Usuarios -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <p class="text-xs sm:text-sm text-gray-600 mb-2">Total</p>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{ estadisticas.total }}</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <p class="text-xs sm:text-sm text-gray-600 mb-2">Activos</p>
+          <p class="text-2xl sm:text-3xl font-bold text-green-600">{{ estadisticas.activos }}</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <p class="text-xs sm:text-sm text-gray-600 mb-2">Inactivos</p>
+          <p class="text-2xl sm:text-3xl font-bold text-red-600">{{ estadisticas.inactivos }}</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <p class="text-xs sm:text-sm text-gray-600 mb-2">Solicitantes</p>
+          <p class="text-2xl sm:text-3xl font-bold text-blue-600">{{ estadisticas.solicitantes }}</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <p class="text-xs sm:text-sm text-gray-600 mb-2">Gestores</p>
+          <p class="text-2xl sm:text-3xl font-bold text-purple-600">{{ estadisticas.gestores }}</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+          <p class="text-xs sm:text-sm text-gray-600 mb-2">Admins</p>
+          <p class="text-2xl sm:text-3xl font-bold text-indigo-600">{{ estadisticas.admins }}</p>
+        </div>
+      </div>
+
       <!-- Tabla de Usuarios (Desktop) -->
       <div class="hidden md:block bg-white rounded-2xl shadow-lg overflow-hidden">
         <table class="w-full">
@@ -287,7 +315,9 @@ import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
 import UsuarioModal from '../components/UsuarioModal.vue'
 import { useUsuarios } from '../composables/useUsuarios'
+import { useSolicitudes } from '../composables/useSolicitudes'
 import { useCatalogos } from '../composables/useCatalogos'
+import { mapearEstadoANumero } from '../utils/estadoMapper'
 
 // Usar composables
 const {
@@ -301,6 +331,7 @@ const {
   totalUsuarios,
   usuariosActivos,
   usuariosInactivos,
+  estadisticas,
   aplicarFiltros,
   limpiarFiltros,
   eliminarUsuario,
@@ -311,7 +342,52 @@ const {
   getEstadoLabel
 } = useUsuarios()
 
+const { solicitudes, cargarSolicitudes } = useSolicitudes()
+
 const { areas } = useCatalogos()
+
+/**
+ * Verifica si un Gestor tiene solicitudes activas (no Rechazadas ni Cerradas)
+ */
+const tieneActividadActiva = (usuarioId, rolUsuario) => {
+  // Solo verificar para Gestores (rol 2)
+  const rolMap = { 'Solicitante': 1, 'Gestor': 2, 'Admin': 3, 'SuperAdmin': 4 }
+  const rolId = typeof rolUsuario === 'number' ? rolUsuario : rolMap[rolUsuario] || 0
+  
+  if (rolId !== 2) return false // No es Gestor
+  
+  // Buscar solicitudes asignadas a este Gestor que NO estén en Rechazada (4) o Cerrada (5)
+  const solicitudesActivas = solicitudes.value.filter(s => {
+    const mismoGestor = s.gestorAsignadoId === usuarioId
+    // Normalizar estado a número para comparación consistente
+    const estadoNumerico = mapearEstadoANumero(s.estado)
+    const estadoActivo = estadoNumerico !== 4 && estadoNumerico !== 5
+    return mismoGestor && estadoActivo
+  })
+  
+  console.log(`Validando gestor ${usuarioId}: ${solicitudesActivas.length} solicitudes activas encontradas`)
+  return solicitudesActivas.length > 0
+}
+
+/**
+ * Obtiene cantidad de solicitudes activas de un Gestor
+ */
+const obtenerCantidadSolicitudesActivas = (usuarioId, rolUsuario) => {
+  const rolMap = { 'Solicitante': 1, 'Gestor': 2, 'Admin': 3, 'SuperAdmin': 4 }
+  const rolId = typeof rolUsuario === 'number' ? rolUsuario : rolMap[rolUsuario] || 0
+  
+  if (rolId !== 2) return 0 // No es Gestor
+  
+  const solicitudesActivas = solicitudes.value.filter(s => {
+    const mismoGestor = s.gestorAsignadoId === usuarioId
+    // Normalizar estado a número para comparación consistente
+    const estadoNumerico = mapearEstadoANumero(s.estado)
+    const estadoActivo = estadoNumerico !== 4 && estadoNumerico !== 5
+    return mismoGestor && estadoActivo
+  })
+  
+  return solicitudesActivas.length
+}
 
 // Modal state
 const mostrarModal = ref(false)
@@ -341,6 +417,17 @@ const mostrarToast = (mensaje, tipo = 'success') => {
 const cambiarEstadoUsuario = async (id, nuevoEstado) => {
   // Buscar el usuario para obtener su nombre
   const usuario = usuariosFiltrados.value.find(u => u.id === id)
+  
+  // Si es Gestor y lo queremos desactivar, verificar que no tenga solicitudes activas
+  if (!nuevoEstado && tieneActividadActiva(id, usuario?.rol)) {
+    const cantidadActivas = obtenerCantidadSolicitudesActivas(id, usuario?.rol)
+    mostrarToast(
+      `No se puede desactivar. El gestor "${usuario?.nombre}" tiene ${cantidadActivas} solicitud(es) activa(s) asignada(s). Reasígnelas primero.`,
+      'warning'
+    )
+    return
+  }
+  
   const accion = nuevoEstado ? 'activar' : 'desactivar'
   const confirmacion = confirm(`¿Desea ${accion} al usuario "${usuario?.nombre}"?`)
   
@@ -398,13 +485,23 @@ const handleModalSuccess = async (event) => {
 }
 
 /**
- * Elimina un usuario (solo si está inactivo)
+ * Elimina un usuario (solo si está inactivo y no tiene solicitudes activas)
  */
 const eliminarUsuarioPropuesto = async (id) => {
   const usuario = usuariosFiltrados.value.find(u => u.id === id)
   
   if (usuario.activo) {
     mostrarToast('Debe desactivar el usuario primero', 'warning')
+    return
+  }
+  
+  // Verificar que el Gestor no tenga solicitudes activas
+  if (tieneActividadActiva(id, usuario?.rol)) {
+    const cantidadActivas = obtenerCantidadSolicitudesActivas(id, usuario?.rol)
+    mostrarToast(
+      `No se puede eliminar. El gestor "${usuario?.nombre}" tiene ${cantidadActivas} solicitud(es) activa(s) asignada(s). Reasígnelas primero.`,
+      'warning'
+    )
     return
   }
   
@@ -422,8 +519,10 @@ const eliminarUsuarioPropuesto = async (id) => {
 /**
  * Carga los usuarios al montar el componente
  */
-onMounted(() => {
-  // Cargar todos los usuarios sin filtros
+onMounted(async () => {
+  // Cargar solicitudes primero
+  await cargarSolicitudes()
+  // Luego cargar usuarios
   limpiarFiltros()
   aplicarFiltros()
 })
