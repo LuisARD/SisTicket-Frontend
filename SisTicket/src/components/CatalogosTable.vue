@@ -4,15 +4,15 @@
     <table class="w-full">
       <thead>
         <tr class="bg-gray-100 border-b-2 border-gray-300">
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-800">ID</th>
+          <th v-if="!isGestor" class="px-4 py-3 text-left text-sm font-semibold text-gray-800">ID</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-800">Nombre</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-800">Estado</th>
-          <th class="px-4 py-3 text-center text-sm font-semibold text-gray-800">Acciones</th>
+          <th v-if="!isGestor" class="px-4 py-3 text-center text-sm font-semibold text-gray-800">Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="item in items" :key="item.id" class="border-b border-gray-200 hover:bg-gray-50 transition">
-          <td class="px-4 py-3 text-sm font-semibold text-gray-800">{{ item.id }}</td>
+          <td v-if="!isGestor" class="px-4 py-3 text-sm font-semibold text-gray-800">{{ item.id }}</td>
           <td class="px-4 py-3 text-sm text-gray-700">{{ item.nombre }}</td>
           <td class="px-4 py-3 text-sm">
             <span
@@ -26,7 +26,7 @@
               {{ item.activo || item.estado ? 'Activo' : 'Inactivo' }}
             </span>
           </td>
-          <td class="px-4 py-3 text-center space-x-2">
+          <td v-if="!isGestor" class="px-4 py-3 text-center space-x-2">
             <button
               v-if="isAdmin"
               @click="$emit('editar', item)"
@@ -62,7 +62,7 @@
     <div v-for="item in items" :key="item.id" class="bg-white rounded-2xl shadow-lg p-4">
       <div class="flex justify-between items-start mb-3">
         <div>
-          <p class="text-xs font-semibold text-gray-500">ID: {{ item.id }}</p>
+          <p v-if="!isGestor" class="text-xs font-semibold text-gray-500">ID: {{ item.id }}</p>
           <p class="text-sm font-semibold text-gray-800">{{ item.nombre }}</p>
         </div>
         <span
@@ -77,7 +77,7 @@
         </span>
       </div>
 
-      <div class="flex gap-2 justify-end">
+      <div v-if="!isGestor" class="flex gap-2 justify-end">
         <button
           v-if="isAdmin"
           @click="$emit('editar', item)"
@@ -125,5 +125,11 @@ defineEmits(['editar', 'eliminar'])
 const isAdmin = computed(() => {
   const rol = authStore.user?.rol
   return rol === 'Admin' || rol === 'SuperAdmin' || rol === 3 || rol === 4
+})
+
+// Validar si es gestor
+const isGestor = computed(() => {
+  const rol = authStore.user?.rol
+  return rol === 'Gestor' || rol === 2
 })
 </script>

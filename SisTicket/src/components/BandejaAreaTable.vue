@@ -55,7 +55,7 @@
 
               <!-- Cambiar Estado (Solo Gestores con solicitud asignada) -->
               <button
-                v-if="esGestor && solicitud.gestorId === userGestorId"
+                v-if="esGestor && solicitud.gestorAsignadoId === userGestorId"
                 @click="$emit('cambiar-estado', solicitud)"
                 class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-medium transition"
               >
@@ -126,7 +126,7 @@
             Asignar
           </button>
           <button
-            v-if="esGestor && solicitud.gestorId === userGestorId"
+            v-if="esGestor && solicitud.gestorAsignadoId === userGestorId"
             @click="$emit('cambiar-estado', solicitud)"
             class="flex-1 px-2 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-medium transition"
           >

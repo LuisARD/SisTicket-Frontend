@@ -2,7 +2,7 @@
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-40">
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex justify-around items-center h-20 sm:h-24">
-        <!-- Todas las Solicitudes (Gestor y Admin/SuperAdmin) -->
+        <!-- Bandeja de Área (Gestor y Admin/SuperAdmin) -->
         <RouterLink
           v-if="puedeVerTodasSolicitudes"
           to="/solicitudes"
@@ -20,7 +20,7 @@
               clip-rule="evenodd"
             />
           </svg>
-          <span class="text-xs sm:text-sm font-semibold">Solicitudes</span>
+          <span class="text-xs sm:text-sm font-semibold">Bandeja</span>
         </RouterLink>
 
         <!-- Catálogos (Todos pueden ver, solo Solicitante/Gestor/Admin/SuperAdmin) -->
@@ -40,25 +40,6 @@
             />
           </svg>
           <span class="text-xs sm:text-sm font-semibold">Catálogos</span>
-        </RouterLink>
-
-        <!-- Bandeja de Área (Solo SuperAdmin) -->
-        <RouterLink
-          v-if="puedeVerBandeja"
-          to="/bandeja-area"
-          :class="[
-            'flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full rounded-t-lg transition',
-            isActive('bandeja-area')
-              ? 'text-indigo-600 border-t-4 border-indigo-600 bg-indigo-50'
-              : 'text-gray-600 hover:text-indigo-600'
-          ]"
-        >
-          <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm14 0H4v2h12V6zM4 12a2 2 0 00-2 2v2a2 2 0 002 2h12a2 2 0 002-2v-2a2 2 0 00-2-2H4z"
-            />
-          </svg>
-          <span class="text-xs sm:text-sm font-semibold">Bandeja</span>
         </RouterLink>
 
         <!-- Mis Solicitudes (Todos menos Gestor) -->
@@ -136,24 +117,19 @@ export default {
     const esSuperAdmin = computed(() => getRol.value === 4 || getRol.value === 'SuperAdmin')
 
     // Permisos de navegación
-    // Catálogos: Solicitante, Gestor, Admin, SuperAdmin (solo ver, no editar)
+    // Catálogos: Gestor, Admin, SuperAdmin (NO Solicitante)
     const puedeVerCatalogos = computed(() => 
-      esSolicitante.value || esGestor.value || esAdmin.value || esSuperAdmin.value
+      esGestor.value || esAdmin.value || esSuperAdmin.value
     )
 
-    // Mis Solicitudes: Solicitante, Admin, SuperAdmin (NO Gestor)
+    // Mis Solicitudes: Solo Solicitante
     const puedeVerMisSolicitudes = computed(() => 
-      esSolicitante.value || esAdmin.value || esSuperAdmin.value
+      esSolicitante.value
     )
 
     // Todas las Solicitudes: Gestor, Admin, SuperAdmin (NO Solicitante)
     const puedeVerTodasSolicitudes = computed(() => 
       esGestor.value || esAdmin.value || esSuperAdmin.value
-    )
-
-    // Bandeja de Área: Solo SuperAdmin (4)
-    const puedeVerBandeja = computed(() => 
-      esSuperAdmin.value
     )
 
     // Gestión de Usuarios: Solo SuperAdmin
@@ -166,7 +142,6 @@ export default {
       puedeVerCatalogos,
       puedeVerMisSolicitudes,
       puedeVerTodasSolicitudes,
-      puedeVerBandeja,
       puedeVerUsuarios
     }
   }

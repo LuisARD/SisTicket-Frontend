@@ -82,6 +82,16 @@ const solicitudesService = {
     }
   },
 
+  tomarSolicitud: async (solicitudId) => {
+    try {
+      const response = await api.post(`/Solicitudes/${solicitudId}/tomar-solicitud`)
+      return response.data
+    } catch (error) {
+      console.error('Error tomando solicitud:', error.message)
+      throw error
+    }
+  },
+
   getComentarios: async (solicitudId) => {
     try {
       const response = await api.get(`/Solicitudes/${solicitudId}/comentarios`)

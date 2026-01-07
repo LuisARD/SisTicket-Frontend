@@ -1,6 +1,7 @@
 import { ref, computed, onMounted } from 'vue'
 import solicitudesService from '../services/solicitudesService'
 import { mapearEstadoANumero } from '../utils/estadoMapper'
+import { authStore } from '../stores/authStore'
 
 export const useSolicitudes = () => {
   const solicitudes = ref([])
@@ -11,6 +12,12 @@ export const useSolicitudes = () => {
     prioridadId: '',
     fechaDesde: '',
     fechaHasta: ''
+  })
+
+  // Verificar si es gestor
+  const esGestor = computed(() => {
+    const rol = authStore.user?.rol
+    return rol === 2 || rol === 'Gestor'
   })
 
   const cargarSolicitudes = async () => {
@@ -30,8 +37,15 @@ export const useSolicitudes = () => {
   const aplicarFiltros = async () => {
     isLoading.value = true
     try {
-      const data = await solicitudesService.getSolicitudes(filtros.value)
+      // Normalizar filtros: convertir estado a número si es string
+      const filtrosNormalizados = {
+        ...filtros.value,
+        estado: filtros.value.estado ? parseInt(filtros.value.estado) : '',
+        prioridadId: filtros.value.prioridadId ? parseInt(filtros.value.prioridadId) : ''
+      }
+      const data = await solicitudesService.getSolicitudes(filtrosNormalizados)
       solicitudes.value = Array.isArray(data) ? data : []
+      console.log('Solicitudes después de filtros:', solicitudes.value.length)
     } catch (error) {
       console.error('Error al filtrar:', error)
       solicitudes.value = []

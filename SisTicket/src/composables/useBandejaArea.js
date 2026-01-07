@@ -7,14 +7,39 @@ export const useBandejaArea = () => {
   const solicitudes = ref([])
   const gestoresDisponibles = ref([])
   const isLoading = ref(false)
+  const filtros = ref({
+    estado: '',
+    prioridadId: '',
+    fechaDesde: '',
+    fechaHasta: ''
+  })
   const { success, error: showError } = useNotification()
 
   // ===== CARGAR SOLICITUDES =====
-  const cargarSolicitudes = async () => {
+  const cargarSolicitudes = async (filtrosAplicar = {}) => {
     isLoading.value = true
     try {
-      const response = await api.get('/Solicitudes')
-      let datos = Array.isArray(response.data) ? response.data : []
+      // Si se pasan filtros, usar el endpoint con filtros
+      let datos = []
+      
+      if (Object.values(filtrosAplicar).some(v => v !== '' && v !== null && v !== undefined)) {
+        // Usar endpoint de filtrado
+        const params = new URLSearchParams()
+        if (filtrosAplicar.estado) params.append('estado', filtrosAplicar.estado)
+        if (filtrosAplicar.prioridadId) params.append('prioridadId', filtrosAplicar.prioridadId)
+        if (filtrosAplicar.fechaDesde) params.append('fechaDesde', filtrosAplicar.fechaDesde)
+        if (filtrosAplicar.fechaHasta) params.append('fechaHasta', filtrosAplicar.fechaHasta)
+
+        const queryString = params.toString()
+        const url = `/Solicitudes/filtrar?${queryString}`
+        
+        const response = await api.get(url)
+        datos = Array.isArray(response.data) ? response.data : []
+      } else {
+        // Sin filtros, obtener todas las solicitudes
+        const response = await api.get('/Solicitudes')
+        datos = Array.isArray(response.data) ? response.data : []
+      }
 
       // Filtrar según el rol del usuario
       const rol = authStore.user?.rol
@@ -22,7 +47,7 @@ export const useBandejaArea = () => {
 
       if (rol === 'Gestor' || rol === 2) {
         // Gestor: solo ve solicitudes asignadas a él de su área
-        datos = datos.filter(s => s.gestorId === authStore.user.id && s.areaId === areaId)
+        datos = datos.filter(s => s.gestorAsignadoId === authStore.user.id && s.areaId === areaId)
       } else if (rol === 'Admin' || rol === 'SuperAdmin' || rol === 3 || rol === 4) {
         // Admin/SuperAdmin: ve todas las solicitudes
         // Se mantienen todas
@@ -94,6 +119,27 @@ export const useBandejaArea = () => {
     }
   }
 
+  // ===== APLICAR FILTROS =====
+  const aplicarFiltros = async () => {
+    // Normalizar filtros: convertir estado a número si es string
+    const filtrosNormalizados = {
+      ...filtros.value,
+      estado: filtros.value.estado ? parseInt(filtros.value.estado) : '',
+      prioridadId: filtros.value.prioridadId ? parseInt(filtros.value.prioridadId) : ''
+    }
+    await cargarSolicitudes(filtrosNormalizados)
+  }
+
+  const limpiarFiltros = () => {
+    filtros.value = {
+      estado: '',
+      prioridadId: '',
+      fechaDesde: '',
+      fechaHasta: ''
+    }
+    cargarSolicitudes()
+  }
+
   // ===== COMPUTED =====
   const esAdmin = computed(() => {
     const rol = authStore.user?.rol
@@ -110,11 +156,14 @@ export const useBandejaArea = () => {
   return {
     solicitudes,
     isLoading,
+    filtros,
     esAdmin,
     esGestor,
     cargarSolicitudes,
     cargarGestoresArea,
     asignarGestor,
-    cambiarEstado
+    cambiarEstado,
+    aplicarFiltros,
+    limpiarFiltros
   }
 }

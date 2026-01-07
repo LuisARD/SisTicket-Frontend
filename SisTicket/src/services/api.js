@@ -30,8 +30,12 @@ api.interceptors.response.use(
   error => {
     console.error('API Error:', error.response?.status, error.response?.data || error.message)
     if (error.response?.status === 401) {
-      // Redirigir a login si no está autenticado
-      window.location.href = '/login'
+      // Solo redirigir si el usuario estaba autenticado (sesión expirada)
+      // No hacer reload en la página de login (credenciales incorrectas)
+      const currentPath = window.location.pathname
+      if (currentPath !== '/login') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }

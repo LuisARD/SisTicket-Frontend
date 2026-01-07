@@ -6,7 +6,7 @@
     <!-- Contenido Principal -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Título -->
-      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Todas las Solicitudes</h2>
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Bandeja de Área</h2>
 
       <!-- Buscador y Filtros -->
       <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-6">

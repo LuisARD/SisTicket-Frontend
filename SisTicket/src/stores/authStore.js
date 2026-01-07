@@ -22,6 +22,7 @@ export const authStore = reactive({
         email: data.email,
         rol: data.rol,
         area: data.area,
+        areaId: data.areaId,
         token: data.token
       }
       this.isAuthenticated = true

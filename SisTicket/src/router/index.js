@@ -6,7 +6,6 @@ import SolicitudDetalleView from '../views/SolicitudDetalleView.vue'
 import MisSolicitudesView from '../views/MisSolicitudesView.vue'
 import UsuariosView from '../views/UsuariosView.vue'
 import CatalogosView from '../views/CatalogosView.vue'
-import BandejaAreaView from '../views/BandejaAreaView.vue'
 import { authStore } from '../stores/authStore'
 
 const routes = [
@@ -28,7 +27,7 @@ const routes = [
   },
   {
     path: '/solicitudes',
-    name: 'Solicitudes',
+    name: 'BandejaArea',
     component: SolicitudesView,
     meta: { requiresAuth: true, forbiddenRoles: [1] } // Solicitante NO puede ver
   },
@@ -42,19 +41,13 @@ const routes = [
     path: '/mis-solicitudes',
     name: 'MisSolicitudes',
     component: MisSolicitudesView,
-    meta: { requiresAuth: true, forbiddenRoles: [2] } // Gestor NO puede ver
+    meta: { requiresAuth: true, forbiddenRoles: [2, 3, 4] } // Gestor, Admin, SuperAdmin NO pueden ver
   },
   {
     path: '/catalogos',
     name: 'Catalogos',
     component: CatalogosView,
-    meta: { requiresAuth: true } // Todos pueden ver
-  },
-  {
-    path: '/bandeja-area',
-    name: 'BandejaArea',
-    component: BandejaAreaView,
-    meta: { requiresAuth: true, requiresSuperAdmin: true } // Solo SuperAdmin
+    meta: { requiresAuth: true, forbiddenRoles: [1] } // Solicitante NO puede ver
   },
   {
     path: '/usuarios',

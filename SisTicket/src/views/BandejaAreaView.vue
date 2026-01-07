@@ -14,6 +14,76 @@
         </p>
       </div>
 
+      <!-- Filtros -->
+      <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-6">
+        <!-- Filtros en Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <select
+              v-model="filtros.estado"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 text-sm"
+            >
+              <option value="">Todos los estados</option>
+              <option value="1">Nueva</option>
+              <option value="2">En Proceso</option>
+              <option value="3">Resuelta</option>
+              <option value="4">Rechazada</option>
+              <option value="5">Cerrada</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Prioridad</label>
+            <select
+              v-model="filtros.prioridadId"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 text-sm"
+            >
+              <option value="">Todas las prioridades</option>
+              <option value="1">Baja</option>
+              <option value="2">Media</option>
+              <option value="3">Alta</option>
+              <option value="4">Crítica</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Desde</label>
+            <input
+              v-model="filtros.fechaDesde"
+              type="date"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
+            <input
+              v-model="filtros.fechaHasta"
+              type="date"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 text-sm"
+            />
+          </div>
+        </div>
+
+        <!-- Botones Filtrar y Limpiar -->
+        <div class="mt-4 flex gap-3">
+          <button
+            @click="aplicarFiltros"
+            :disabled="isLoading"
+            class="flex-1 sm:flex-initial px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-lg transition text-sm sm:text-base"
+          >
+            {{ isLoading ? 'Filtrando...' : 'Filtrar' }}
+          </button>
+          <button
+            @click="limpiarFiltros"
+            class="flex-1 sm:flex-initial px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition text-sm sm:text-base"
+          >
+            Limpiar
+          </button>
+        </div>
+      </div>
+
       <!-- Loading -->
       <div v-if="isLoading" class="text-center py-12">
         <p class="text-gray-500">Cargando solicitudes...</p>
@@ -65,7 +135,7 @@ import { useBandejaArea } from '../composables/useBandejaArea'
 import { authStore } from '../stores/authStore'
 
 const router = useRouter()
-const { solicitudes, isLoading, esAdmin, esGestor, cargarSolicitudes, cambiarEstado } = useBandejaArea()
+const { solicitudes, isLoading, filtros, esAdmin, esGestor, cargarSolicitudes, cambiarEstado, aplicarFiltros, limpiarFiltros } = useBandejaArea()
 
 // Verificar permisos: solo gestores y admins pueden acceder
 onMounted(() => {

@@ -203,9 +203,13 @@ const solicitudesFiltradas = computed(() => {
 })
 
 const aplicarFiltros = async () => {
-  // Los filtros se aplican automáticamente a través del computed
-  // Solo refrescamos los datos
-  await cargarMisSolicitudes()
+  // Normalizar filtros: convertir estado a número si es string
+  const filtrosNormalizados = {
+    ...filtros.value,
+    estado: filtros.value.estado ? parseInt(filtros.value.estado) : '',
+    prioridadId: filtros.value.prioridadId ? parseInt(filtros.value.prioridadId) : ''
+  }
+  await cargarMisSolicitudes(filtrosNormalizados)
 }
 
 const limpiarFiltros = () => {
