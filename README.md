@@ -57,14 +57,13 @@ El sistema está diseñado con una arquitectura de dos capas:
 ## Tecnologías Utilizadas
 
 ### Frontend
-| Tecnología | Versión | Propósito |
-|-----------|---------|----------|
-| Vue | 3.5.26 | Framework JavaScript reactivo |
-| Vite | 7.3.0 | Build tool y dev server |
-| Tailwind CSS | 4.1.18 | Framework de estilos CSS |
-| Vue Router | 4.6.4 | Enrutamiento de la aplicación |
-| Axios | 1.13.2 | Cliente HTTP para APIs |
-| XLSX | 0.18.5 | Exportación a Excel |
+Tecnologia
+- Vue  3.5.26  Framework JavaScript reactivo 
+- Vite  7.3.0 Build tool y dev server 
+- Tailwind CSS  4.1.18  Framework de estilos CSS 
+ - Vue Router  4.6.4  Enrutamiento de la aplicación 
+- Axios  1.13.2  Cliente HTTP para APIs 
+ - XLSX  0.18.5  Exportación a Excel 
 
 ### Herramientas de Desarrollo
 - Node.js: v20.19.0 o superior
