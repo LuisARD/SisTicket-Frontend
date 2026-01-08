@@ -39,11 +39,16 @@ export const authStore = reactive({
 
   async logout() {
     try {
+      // Llamar al servicio para hacer logout en el servidor
       await authService.logout()
+    } catch (err) {
+      console.error('Error en logout:', err)
+      // Continuar con la limpieza local incluso si falla la llamada al servidor
+    } finally {
+      // Limpiar el estado del store en todo caso
       this.user = null
       this.isAuthenticated = false
-    } catch (err) {
-      console.error('Error al cerrar sesión:', err)
+      this.error = null
     }
   },
 

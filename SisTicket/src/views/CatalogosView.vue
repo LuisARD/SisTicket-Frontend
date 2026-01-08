@@ -182,15 +182,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
 import CatalogosTable from '../components/CatalogosTable.vue'
 import CatalogosModal from '../components/CatalogosModal.vue'
 import { useCatalogos } from '../composables/useCatalogos'
+import { useSolicitudes } from '../composables/useSolicitudes'
 import { authStore } from '../stores/authStore'
 
 const catalogos = useCatalogos()
+const { solicitudes } = useSolicitudes()
 const {
   cargarAreas,
   cargarPrioridades,
@@ -238,6 +240,27 @@ const puedeEliminar = () => {
     return false
   }
   return true
+}
+
+/**
+ * Verifica si un área está siendo usada en solicitudes
+ */
+const areaEstaEnUso = (areaId) => {
+  return solicitudes.value.some(s => s.areaId === areaId)
+}
+
+/**
+ * Verifica si una prioridad está siendo usada en solicitudes
+ */
+const prioridadEstaEnUso = (prioridadId) => {
+  return solicitudes.value.some(s => s.prioridadId === prioridadId)
+}
+
+/**
+ * Verifica si un tipo de solicitud está siendo usado en solicitudes
+ */
+const tipoEstaEnUso = (tipoId) => {
+  return solicitudes.value.some(s => s.tipoSolicitudId === tipoId)
 }
 
 // Estado de modales
@@ -298,6 +321,15 @@ const eliminarArea = async (id) => {
   const area = areasOrdenadas.value.find(a => a.id === id)
   console.log('🗑️ ELIMINANDO ÁREA:', { id, nombre: area?.nombre })
   
+  // Verificar si el área está en uso en solicitudes
+  if (areaEstaEnUso(id)) {
+    mostrarNotificacion(
+      `No se puede eliminar el área "${area?.nombre}" porque está siendo usada en solicitudes.`,
+      'warning'
+    )
+    return
+  }
+  
   const confirmacion = confirm(`¿Está seguro que desea eliminar el área "${area?.nombre}"?`)
   if (!confirmacion) return
   
@@ -357,6 +389,17 @@ const handleModalPrioridadSuccess = async () => {
 const eliminarPrioridad = async (id) => {
   if (!puedeEliminar()) return
   
+  const prioridad = prioridadesOrdenadas.value.find(p => p.id === id)
+  
+  // Verificar si la prioridad está en uso en solicitudes
+  if (prioridadEstaEnUso(id)) {
+    mostrarNotificacion(
+      `No se puede eliminar la prioridad "${prioridad?.nombre}" porque está siendo usada en solicitudes.`,
+      'warning'
+    )
+    return
+  }
+  
   const confirmacion = confirm('¿Está seguro que desea eliminar esta prioridad?')
   if (!confirmacion) return
   
@@ -414,6 +457,17 @@ const handleModalTipoSuccess = async () => {
 const eliminarTipoSolicitud = async (id) => {
   if (!puedeEliminar()) return
   
+  const tipo = tiposSolicitudOrdenados.value.find(t => t.id === id)
+  
+  // Verificar si el tipo está en uso en solicitudes
+  if (tipoEstaEnUso(id)) {
+    mostrarNotificacion(
+      `No se puede eliminar el tipo "${tipo?.nombre}" porque está siendo usado en solicitudes.`,
+      'warning'
+    )
+    return
+  }
+  
   const confirmacion = confirm('¿Está seguro que desea eliminar este tipo de solicitud?')
   if (!confirmacion) return
   
@@ -447,6 +501,12 @@ const eliminarTipoSolicitud = async (id) => {
     loading.value = false
   }
 }
+
+// Cargar solicitudes al montar el componente
+onMounted(async () => {
+  const { cargarSolicitudes } = useSolicitudes()
+  await cargarSolicitudes()
+})
 </script>
 
 <style scoped>

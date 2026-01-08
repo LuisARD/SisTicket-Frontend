@@ -18,10 +18,28 @@ const authService = {
 
   logout: async () => {
     try {
+      // Llamar al endpoint POST /api/auth/logout
+      // El servidor elimina la cookie de autenticación automáticamente
       await api.post('/Auth/logout')
-      console.log('Logout exitoso')
+      
+      // Limpiar el estado local
+      // Limpiar localStorage
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('auth')
+      
+      // Limpiar sessionStorage
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('user')
+      sessionStorage.removeItem('auth')
+      
+      console.log('Logout exitoso - sesión cerrada')
     } catch (error) {
       console.error('Error en logout:', error.message)
+      // Aún así limpiar el estado local aunque falle la llamada al servidor
+      localStorage.clear()
+      sessionStorage.clear()
+      throw error
     }
   },
 

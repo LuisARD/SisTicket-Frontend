@@ -757,11 +757,11 @@ export default {
       let estadosValidos = TRANSICIONES_VALIDAS[estadoActual] || []
       
       // Filtrar estados según el rol:
-      // - Gestores (rol 2) solo pueden cambiar a Resuelta (3)
+      // - Gestores (rol 2) solo pueden cambiar a Resuelta (3) o Rechazada (4)
       // - Admin y SuperAdmin (roles 3 y 4) pueden cambiar a cualquier estado válido
       if (esGestor.value && !esAdmin.value && !esSuperAdmin.value) {
-        // Gestor: solo permitir Resuelta (3)
-        estadosValidos = estadosValidos.filter(estadoId => estadoId === 3)
+        // Gestor: solo permitir Resuelta (3) o Rechazada (4)
+        estadosValidos = estadosValidos.filter(estadoId => estadoId === 3 || estadoId === 4)
       }
       
       console.log('Estados válidos disponibles:', estadosValidos)
@@ -912,6 +912,11 @@ export default {
       const rolActualId = typeof usuarioActualRol === 'number' ? usuarioActualRol : rolMap[usuarioActualRol] || 0
       const comentarioRolId = typeof comentarioUsuarioRol === 'number' ? comentarioUsuarioRol : rolMap[comentarioUsuarioRol] || 0
 
+      // Solicitante y Gestor no pueden eliminar comentarios
+      if (rolActualId === 1 || rolActualId === 2) {
+        return false
+      }
+
       // SuperAdmin puede eliminar cualquier comentario
       if (rolActualId === 4) {
         return true
@@ -924,16 +929,6 @@ export default {
       // - NO comentarios de SuperAdmin (rol 4)
       if (rolActualId === 3) {
         return usuarioActualId === comentarioUsuarioId || comentarioRolId === 1 || comentarioRolId === 2
-      }
-
-      // Gestor puede eliminar solo su propio comentario
-      if (rolActualId === 2) {
-        return usuarioActualId === comentarioUsuarioId
-      }
-
-      // Solicitante puede eliminar solo su propio comentario
-      if (rolActualId === 1) {
-        return usuarioActualId === comentarioUsuarioId
       }
 
       return false
