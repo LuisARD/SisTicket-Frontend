@@ -10,6 +10,7 @@ export const useBandejaArea = () => {
   const filtros = ref({
     estado: '',
     prioridadId: '',
+    areaId: '',
     fechaDesde: '',
     fechaHasta: ''
   })
@@ -27,6 +28,7 @@ export const useBandejaArea = () => {
         const params = new URLSearchParams()
         if (filtrosAplicar.estado) params.append('estado', filtrosAplicar.estado)
         if (filtrosAplicar.prioridadId) params.append('prioridadId', filtrosAplicar.prioridadId)
+        if (filtrosAplicar.areaId) params.append('areaId', filtrosAplicar.areaId)
         if (filtrosAplicar.fechaDesde) params.append('fechaDesde', filtrosAplicar.fechaDesde)
         if (filtrosAplicar.fechaHasta) params.append('fechaHasta', filtrosAplicar.fechaHasta)
 
@@ -135,6 +137,7 @@ export const useBandejaArea = () => {
     filtros.value = {
       estado: '',
       prioridadId: '',
+      areaId: '',
       fechaDesde: '',
       fechaHasta: ''
     }

@@ -10,6 +10,7 @@ export const useSolicitudes = () => {
   const filtros = ref({
     estado: '',
     prioridadId: '',
+    areaId: '',
     fechaDesde: '',
     fechaHasta: ''
   })
@@ -41,7 +42,8 @@ export const useSolicitudes = () => {
       const filtrosNormalizados = {
         ...filtros.value,
         estado: filtros.value.estado ? parseInt(filtros.value.estado) : '',
-        prioridadId: filtros.value.prioridadId ? parseInt(filtros.value.prioridadId) : ''
+        prioridadId: filtros.value.prioridadId ? parseInt(filtros.value.prioridadId) : '',
+        areaId: filtros.value.areaId ? parseInt(filtros.value.areaId) : ''
       }
       const data = await solicitudesService.getSolicitudes(filtrosNormalizados)
       solicitudes.value = Array.isArray(data) ? data : []
@@ -59,6 +61,7 @@ export const useSolicitudes = () => {
     filtros.value = {
       estado: '',
       prioridadId: '',
+      areaId: '',
       fechaDesde: '',
       fechaHasta: ''
     }

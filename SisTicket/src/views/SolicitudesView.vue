@@ -52,6 +52,19 @@
           </div>
 
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Área</label>
+            <select
+              v-model="filtros.areaId"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 text-sm"
+            >
+              <option value="">Todas las áreas</option>
+              <option v-for="area in areas" :key="area.id" :value="area.id">
+                {{ area.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Desde</label>
             <input
               v-model="filtros.fechaDesde"
@@ -71,7 +84,7 @@
         </div>
 
         <!-- Botón Filtrar -->
-        <div class="mt-4 flex gap-3">
+        <div class="mt-4 flex gap-3 flex-wrap">
           <button
             @click="aplicarFiltros"
             :disabled="isLoading"
@@ -84,6 +97,17 @@
             class="flex-1 sm:flex-initial px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition text-sm sm:text-base"
           >
             Limpiar
+          </button>
+          <button
+            v-if="esAdminOSuperAdmin"
+            @click="exportarExcel"
+            :disabled="isLoading"
+            class="flex-1 sm:flex-initial px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold rounded-lg transition text-sm sm:text-base flex items-center justify-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Descargar Excel
           </button>
         </div>
       </div>
@@ -126,6 +150,10 @@ import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
 import SolicitudesTable from '../components/SolicitudesTable.vue'
 import { useSolicitudes } from '../composables/useSolicitudes'
+import { useCatalogos } from '../composables/useCatalogos'
+import { onMounted, computed } from 'vue'
+import { authStore } from '../stores/authStore'
+import { exportarSolicitudesAExcel } from '../services/excelExportService'
 
 export default {
   name: 'SolicitudesView',
@@ -140,10 +168,32 @@ export default {
       searchQuery,
       filtros,
       solicitudesFiltradas,
+      solicitudes,
       estadisticas,
       aplicarFiltros,
       limpiarFiltros
     } = useSolicitudes()
+
+    const { areas, cargarAreas } = useCatalogos()
+
+    // Validar permisos
+    const esAdminOSuperAdmin = computed(() => {
+      const rol = authStore.user?.rol
+      return rol === 'Admin' || rol === 'SuperAdmin' || rol === 3 || rol === 4
+    })
+
+    const exportarExcel = () => {
+      try {
+        exportarSolicitudesAExcel(solicitudes.value)
+      } catch (error) {
+        console.error('Error al exportar:', error)
+        alert('Error al exportar solicitudes: ' + error.message)
+      }
+    }
+
+    onMounted(() => {
+      cargarAreas()
+    })
 
     return {
       isLoading,
@@ -152,7 +202,10 @@ export default {
       solicitudesFiltradas,
       estadisticas,
       aplicarFiltros,
-      limpiarFiltros
+      limpiarFiltros,
+      areas,
+      esAdminOSuperAdmin,
+      exportarExcel
     }
   }
 }

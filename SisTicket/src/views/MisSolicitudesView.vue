@@ -40,8 +40,8 @@
               <option value="1">Nueva</option>
               <option value="2">En Proceso</option>
               <option value="3">Resuelta</option>
-              <option value="4">Cerrada</option>
-              <option value="5">Cancelada</option>
+              <option value="4">Rechazada</option>
+              <option value="5">Cerrada</option>
             </select>
           </div>
 

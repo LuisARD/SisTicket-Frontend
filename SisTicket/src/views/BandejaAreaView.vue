@@ -48,6 +48,19 @@
           </div>
 
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Área</label>
+            <select
+              v-model="filtros.areaId"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 text-sm"
+            >
+              <option value="">Todas las áreas</option>
+              <option v-for="area in areas" :key="area.id" :value="area.id">
+                {{ area.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Desde</label>
             <input
               v-model="filtros.fechaDesde"
@@ -132,10 +145,12 @@ import BandejaAreaTable from '../components/BandejaAreaTable.vue'
 import AsignarGestorModal from '../components/AsignarGestorModal.vue'
 import CambiarEstadoModal from '../components/CambiarEstadoModal.vue'
 import { useBandejaArea } from '../composables/useBandejaArea'
+import { useCatalogos } from '../composables/useCatalogos'
 import { authStore } from '../stores/authStore'
 
 const router = useRouter()
 const { solicitudes, isLoading, filtros, esAdmin, esGestor, cargarSolicitudes, cambiarEstado, aplicarFiltros, limpiarFiltros } = useBandejaArea()
+const { areas, cargarAreas } = useCatalogos()
 
 // Verificar permisos: solo gestores y admins pueden acceder
 onMounted(() => {
@@ -143,6 +158,8 @@ onMounted(() => {
   if (rol === 'Solicitante' || rol === 1) {
     router.push('/solicitudes')
   }
+  // Cargar áreas disponibles
+  cargarAreas()
 })
 
 // Modales
