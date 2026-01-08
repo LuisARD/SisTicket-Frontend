@@ -13,7 +13,20 @@
       <tbody>
         <tr v-for="item in items" :key="item.id" class="border-b border-gray-200 hover:bg-gray-50 transition">
           <td v-if="!isGestor" class="px-4 py-3 text-sm font-semibold text-gray-800">{{ item.id }}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">{{ item.nombre }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">
+            <div class="flex items-center gap-2">
+              <span>{{ item.nombre }}</span>
+              <div v-if="item.descripcion" class="relative group cursor-help">
+                <svg class="w-4 h-4 text-gray-400 hover:text-gray-600 transition flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+              <div class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-normal max-w-sm z-10">
+                  {{ item.descripcion }}
+                  <div class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-800"></div>
+                </div>
+              </div>
+            </div>
+          </td>
           <td class="px-4 py-3 text-sm">
             <span
               :class="[
@@ -63,7 +76,18 @@
       <div class="flex justify-between items-start mb-3">
         <div>
           <p v-if="!isGestor" class="text-xs font-semibold text-gray-500">ID: {{ item.id }}</p>
-          <p class="text-sm font-semibold text-gray-800">{{ item.nombre }}</p>
+          <div class="flex items-center gap-2">
+            <p class="text-sm font-semibold text-gray-800">{{ item.nombre }}</p>
+            <div v-if="item.descripcion" class="relative group cursor-help">
+              <svg class="w-4 h-4 text-gray-400 hover:text-gray-600 transition flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+              <div class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-normal max-w-sm z-10">
+                {{ item.descripcion }}
+                <div class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-800"></div>
+              </div>
+            </div>
+          </div>
         </div>
         <span
           :class="[
