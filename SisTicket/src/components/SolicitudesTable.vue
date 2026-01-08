@@ -59,7 +59,7 @@
             <td class="px-4 py-3 text-center">
               <!-- Botón Ver (default) -->
               <RouterLink
-                v-if="!mostrarAccionesEditar"
+                v-if="!mostrarAccionesEditar && !mostrarAccionesVer"
                 :to="`/detalle-solicitud/${solicitud.id}`"
                 class="text-indigo-600 hover:text-indigo-800 transition"
                 title="Ver detalles"
@@ -74,10 +74,28 @@
                 </svg>
               </RouterLink>
 
-              <!-- Botones Editar y Borrar (si mostrarAccionesEditar) -->
+              <!-- Botones Ver y Editar (si mostrarAccionesVer o mostrarAccionesEditar) -->
               <div v-else class="flex gap-2 justify-center">
+                <!-- Botón Ver -->
+                <button
+                  v-if="mostrarAccionesVer"
+                  @click="$emit('ver-solicitud', solicitud)"
+                  class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 p-2 rounded transition"
+                  title="Ver detalles de la solicitud"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+
                 <!-- Botón Editar -->
                 <button
+                  v-if="mostrarAccionesEditar"
                   @click="$emit('editar-solicitud', solicitud)"
                   class="text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-2 rounded transition"
                   title="Editar solicitud"
@@ -107,7 +125,7 @@
           </div>
           <!-- Botón Ver (default) -->
           <RouterLink
-            v-if="!mostrarAccionesEditar"
+            v-if="!mostrarAccionesEditar && !mostrarAccionesVer"
             :to="`/detalle-solicitud/${solicitud.id}`"
             class="text-indigo-600 hover:text-indigo-800"
           >
@@ -120,9 +138,28 @@
               />
             </svg>
           </RouterLink>
-          <!-- Botones Editar y Borrar (si mostrarAccionesEditar) -->
+          <!-- Botones Ver y Editar (si mostrarAccionesVer o mostrarAccionesEditar) -->
           <div v-else class="flex gap-2">
+            <!-- Botón Ver -->
             <button
+              v-if="mostrarAccionesVer"
+              @click="$emit('ver-solicitud', solicitud)"
+              class="text-indigo-600 hover:text-indigo-800"
+              title="Ver detalles de la solicitud"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path
+                  fill-rule="evenodd"
+                  d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+
+            <!-- Botón Editar -->
+            <button
+              v-if="mostrarAccionesEditar"
               @click="$emit('editar-solicitud', solicitud)"
               class="text-blue-600 hover:text-blue-800"
               title="Editar solicitud"
@@ -184,9 +221,13 @@ export default {
     mostrarAccionesEditar: {
       type: Boolean,
       default: false
+    },
+    mostrarAccionesVer: {
+      type: Boolean,
+      default: false
     }
   },
-  emits: ['editar-solicitud'],
+  emits: ['editar-solicitud', 'ver-solicitud'],
   setup() {
     const getPrioridadColor = (nivelONombre) => {
       // Manejar tanto números como nombres de prioridad

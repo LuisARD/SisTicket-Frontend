@@ -8,7 +8,7 @@
       <!-- Header con Volver -->
       <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
         <RouterLink
-          to="/solicitudes"
+          :to="desdeMinsSolicitudes ? '/mis-solicitudes' : '/solicitudes'"
           class="text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-2 w-fit"
         >
           <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,10 +160,16 @@
 
               <div v-for="comentario in comentarios" :key="comentario.id" class="bg-gray-50 p-3 sm:p-4 rounded-lg">
                 <div class="flex justify-between items-start gap-2 mb-2">
-                  <p class="font-semibold text-gray-800 text-xs sm:text-sm truncate">{{ comentario.usuarioNombre || 'Anónimo' }}</p>
+                  <div class="flex items-center gap-2 flex-1 min-w-0">
+                    <p class="font-semibold text-gray-800 text-xs sm:text-sm truncate">{{ comentario.usuarioNombre || 'Anónimo' }}</p>
+                    <span v-if="comentario.usuarioRol" :class="`${getRolColor(comentario.usuarioRol)} px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap flex-shrink-0`">
+                      {{ getRolLabel(comentario.usuarioRol) }}
+                    </span>
+                  </div>
                   <div class="flex items-center gap-1 flex-shrink-0">
                     <p class="text-xs text-gray-500 whitespace-nowrap">{{ formatDate(comentario.fechaCreacion) }}</p>
                     <button
+                      v-if="puedeEliminarComentario(comentario)"
                       @click="eliminarComentario(comentario.id)"
                       :disabled="isLoadingComment"
                       class="text-red-500 hover:text-red-700 disabled:opacity-50 text-xs font-bold"
@@ -197,10 +203,25 @@
         </div>
 
         <!-- Panel de Acciones (1 columna) -->
-        <div v-if="!estaBloqueada" class="md:sticky md:top-20 bg-white rounded-xl sm:rounded-2xl shadow p-4 sm:p-6 h-fit">
+        <div v-if="!desdeMinsSolicitudes ? !estaBloqueada : estaNueva" class="md:sticky md:top-20 bg-white rounded-xl sm:rounded-2xl shadow p-4 sm:p-6 h-fit">
           <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Acciones</h2>
 
           <div class="space-y-4 sm:space-y-5">
+            <!-- Botón de Editar para Solicitantes desde Mis Solicitudes -->
+            <div v-if="desdeMinsSolicitudes && estaNueva">
+              <button
+                @click="abrirModalEditar"
+                class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-sm sm:text-base"
+              >
+                Editar Solicitud
+              </button>
+            </div>
+            <!-- Advertencia: Solicitud Nueva sin Gestor (No para Solicitantes) -->
+            <div v-if="estaNueva && !tieneGestorAsignado && !desdeMinsSolicitudes" class="p-3 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800 text-xs sm:text-sm">
+              <p class="font-semibold mb-1">⚠️ Asignación Requerida</p>
+              <p>Esta solicitud debe ser asignada a un Gestor antes de cambiar su estado.</p>
+            </div>
+
             <!-- Cambiar Estado -->
             <div v-if="puedeCambiarEstado">
               <label class="block text-xs sm:text-sm font-semibold text-gray-600 mb-2">Cambiar Estado</label>
@@ -222,11 +243,7 @@
               </button>
             </div>
 
-            <!-- Mensaje para Solicitantes (sin permisos) -->
-            <div v-else class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-xs sm:text-sm">
-              <p class="font-semibold mb-1">Permisos Limitados</p>
-              <p>Como solicitante, puedes agregar comentarios pero no puedes cambiar el estado de la solicitud.</p>
-            </div>
+        
 
             <!-- Asignar Gestor (Solo Admin/SuperAdmin) -->
             <div v-if="puedeAsignarGestor && puedeAsignarGestorEnEsteEstado">
@@ -282,8 +299,8 @@
           </div>
         </div>
 
-        <!-- Mensaje cuando solicitud está cerrada o rechazada -->
-        <div v-else class="md:sticky md:top-20 bg-white rounded-xl sm:rounded-2xl shadow p-4 sm:p-6 h-fit">
+        <!-- Mensaje cuando solicitud está cerrada o rechazada - No se muestra si viene desde Mis Solicitudes -->
+        <div v-if="!desdeMinsSolicitudes && estaBloqueada" class="md:sticky md:top-20 bg-white rounded-xl sm:rounded-2xl shadow p-4 sm:p-6 h-fit">
           <div class="p-4 bg-gray-50 border border-gray-300 rounded-lg text-center">
             <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -412,6 +429,15 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Modal de Edición para Solicitantes -->
+    <EditarSolicitudModal
+      :isOpen="modalEditarIsOpen"
+      :solicitud="solicitudEditando"
+      @close="cerrarModalEditar"
+      @success="handleEditarSuccess"
+    />
+
     <BottomNavBar />
   </div>
 </template>
@@ -421,6 +447,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
+import EditarSolicitudModal from '../components/EditarSolicitudModal.vue'
 import solicitudesService from '../services/solicitudesService'
 import api from '../services/api'
 import { authStore } from '../stores/authStore'
@@ -430,12 +457,16 @@ export default {
   name: 'SolicitudDetalleView',
   components: {
     Navbar,
-    BottomNavBar
+    BottomNavBar,
+    EditarSolicitudModal
   },
   setup() {
     const route = useRoute()
     const authStoreInstance = authStore
     const solicitudId = route.params.id
+    
+    // Detectar si viene desde Mis Solicitudes
+    const desdeMinsSolicitudes = route.query.desde === 'misSolicitudes'
 
     const solicitud = ref(null)
     const comentarios = ref([])
@@ -461,6 +492,10 @@ export default {
 
     // Modal de confirmación para tomar solicitud
     const mostrarModalTomarSolicitud = ref(false)
+
+    // Modal de edición para Solicitantes
+    const modalEditarIsOpen = ref(false)
+    const solicitudEditando = ref(null)
 
     // Funciones helper mejoradas para manejar tanto números como strings
     const getEstadoLabel = (estado) => {
@@ -528,6 +563,36 @@ export default {
       })
     }
 
+    // Mapeo de roles a etiquetas
+    const getRolLabel = (rol) => {
+      const rolMap = {
+        1: 'Solicitante',
+        2: 'Gestor',
+        3: 'Admin',
+        4: 'SuperAdmin',
+        'Solicitante': 'Solicitante',
+        'Gestor': 'Gestor',
+        'Admin': 'Admin',
+        'SuperAdmin': 'SuperAdmin'
+      }
+      return rolMap[rol] || 'Desconocido'
+    }
+
+    // Mapeo de roles a colores
+    const getRolColor = (rol) => {
+      const rolColorMap = {
+        1: 'bg-blue-100 text-blue-800',
+        2: 'bg-purple-100 text-purple-800',
+        3: 'bg-orange-100 text-orange-800',
+        4: 'bg-red-100 text-red-800',
+        'Solicitante': 'bg-blue-100 text-blue-800',
+        'Gestor': 'bg-purple-100 text-purple-800',
+        'Admin': 'bg-orange-100 text-orange-800',
+        'SuperAdmin': 'bg-red-100 text-red-800'
+      }
+      return rolColorMap[rol] || 'bg-gray-100 text-gray-800'
+    }
+
     // Mapeo de estados string a ID numérico (exactos del API)
     const ESTADO_STRING_A_ID = {
       'Nueva': 1,
@@ -584,7 +649,18 @@ export default {
     // Permisos específicos por rol
     const puedeVerGestorAsignado = computed(() => esAdminOSuperAdmin.value)
     
-    const puedeCambiarEstado = computed(() => esGestor.value || esAdminOSuperAdmin.value)
+    const puedeCambiarEstado = computed(() => {
+      // Solo Gestores y Admin/SuperAdmin pueden cambiar estado
+      const tieneRolPermitido = esGestor.value || esAdminOSuperAdmin.value
+      if (!tieneRolPermitido) return false
+      
+      // Si la solicitud está Nueva, debe tener un gestor asignado para cambiar estado
+      if (estaNueva.value) {
+        return tieneGestorAsignado.value
+      }
+      
+      return true
+    })
     
     // Gestores pueden autoasignarse, Admins/SuperAdmins pueden asignar a cualquiera
     const puedeAsignarGestor = computed(() => esAdminOSuperAdmin.value)
@@ -598,29 +674,60 @@ export default {
     })
 
     // Validaciones adicionales para estado Rechazada o Cerrada (estados finales bloqueantes)
+    const estaNueva = computed(() => solicitud.value?.estado === 'Nueva' || solicitud.value?.estado === 1)
+    
     const estaRechazada = computed(() => solicitud.value?.estado === 'Rechazada' || solicitud.value?.estado === 4)
     
     const estaCerrada = computed(() => solicitud.value?.estado === 'Cerrada' || solicitud.value?.estado === 5)
     
     const estaResuelta = computed(() => solicitud.value?.estado === 'Resuelta' || solicitud.value?.estado === 3)
     
-    // Solo Rechazada y Cerrada bloquean todo (Resuelta es un paso intermedio)
+    // Rechazada, Cerrada y Resuelta bloquean la reasignación
     const estaBloqueada = computed(() => estaRechazada.value || estaCerrada.value)
+    
+    // Verifica si la solicitud tiene un gestor asignado
+    const tieneGestorAsignado = computed(() => {
+      return !!(solicitud.value?.gestorAsignadoId || solicitud.value?.gestorAsignadoNombre)
+    })
 
-    // Admin/SuperAdmin pueden asignar, pero NO en rechazada o cerrada
-    // Gestores pueden autoasignarse, pero NO en rechazada o cerrada
+    // Admin/SuperAdmin pueden asignar, pero NO en rechazada, cerrada o resuelta
+    // Gestores pueden autoasignarse, pero NO en rechazada, cerrada o resuelta
     const puedeAsignarGestorEnEsteEstado = computed(() => {
-      // Si está rechazada o cerrada, no se puede asignar
-      if (estaBloqueada.value) {
+      // Si está rechazada, cerrada o resuelta, no se puede asignar
+      if (estaBloqueada.value || estaResuelta.value) {
         return false
       }
-      // En otros estados (incluyendo Resuelta): pueden asignar/autoasignarse
+      // En otros estados: pueden asignar/autoasignarse
       return puedeAsignarGestor.value || puedeGestorAutoasignarse.value
     })
 
     // NO puede agregar comentario si está rechazada o cerrada (para TODOS, incluso SuperAdmin)
+    // Los Gestores solo pueden comentar si son los asignados a la solicitud
+    // Los Admin/SuperAdmin pueden comentar en cualquier solicitud (si no está rechazada/cerrada)
     const puedeAgregarComentario = computed(() => {
-      return !estaBloqueada.value
+      // Si está rechazada o cerrada, nadie puede comentar
+      if (estaBloqueada.value) {
+        return false
+      }
+      
+      // Admin y SuperAdmin pueden comentar siempre
+      if (esAdminOSuperAdmin.value) {
+        return true
+      }
+      
+      // Gestores solo pueden comentar si son los asignados
+      if (esGestor.value) {
+        const usuarioActualId = authStoreInstance.user?.id
+        const gestorAsignadoId = solicitud.value?.gestorAsignadoId
+        return usuarioActualId && gestorAsignadoId && usuarioActualId === gestorAsignadoId
+      }
+      
+      // Solicitantes pueden comentar si vienen desde Mis Solicitudes Y la solicitud tiene gestor asignado
+      if (desdeMinsSolicitudes) {
+        return tieneGestorAsignado.value
+      }
+      
+      return false
     })
 
     // Computed que retorna los estados disponibles según el estado actual y el rol
@@ -699,7 +806,33 @@ export default {
     const cargarComentarios = async () => {
       try {
         const response = await solicitudesService.getComentarios(solicitudId)
-        comentarios.value = response || []
+        const comentariosData = response || []
+        
+        // Obtener todos los usuarios para enriquecer los comentarios con rol
+        let usuariosMap = {}
+        try {
+          const usuariosResponse = await api.get('/Usuarios')
+          const usuarios = Array.isArray(usuariosResponse.data) ? usuariosResponse.data : []
+          // Crear un mapa de usuarios por ID
+          usuariosMap = usuarios.reduce((map, usuario) => {
+            map[usuario.id] = usuario.rol
+            return map
+          }, {})
+        } catch (error) {
+          console.error('Error cargando usuarios para enriquecer comentarios:', error)
+        }
+        
+        // Enriquecer comentarios con rol del usuario
+        comentarios.value = comentariosData.map(comentario => {
+          if (!comentario.usuarioRol && comentario.usuarioId && usuariosMap[comentario.usuarioId]) {
+            return {
+              ...comentario,
+              usuarioRol: usuariosMap[comentario.usuarioId]
+            }
+          }
+          return comentario
+        })
+        
         console.log('Comentarios cargados:', comentarios.value)
       } catch (error) {
         console.error('Error cargando comentarios:', error)
@@ -767,6 +900,45 @@ export default {
       }
     }
 
+    // Verificar si el usuario actual puede eliminar un comentario específico
+    const puedeEliminarComentario = (comentario) => {
+      const usuarioActualId = authStoreInstance.user?.id
+      const usuarioActualRol = authStoreInstance.user?.rol
+      const comentarioUsuarioId = comentario.usuarioId
+      const comentarioUsuarioRol = comentario.usuarioRol
+
+      // Mapeo de roles a números
+      const rolMap = { 'Solicitante': 1, 'Gestor': 2, 'Admin': 3, 'SuperAdmin': 4 }
+      const rolActualId = typeof usuarioActualRol === 'number' ? usuarioActualRol : rolMap[usuarioActualRol] || 0
+      const comentarioRolId = typeof comentarioUsuarioRol === 'number' ? comentarioUsuarioRol : rolMap[comentarioUsuarioRol] || 0
+
+      // SuperAdmin puede eliminar cualquier comentario
+      if (rolActualId === 4) {
+        return true
+      }
+
+      // Admin puede eliminar:
+      // - Su propio comentario
+      // - Comentarios de Solicitante (rol 1)
+      // - Comentarios de Gestor (rol 2)
+      // - NO comentarios de SuperAdmin (rol 4)
+      if (rolActualId === 3) {
+        return usuarioActualId === comentarioUsuarioId || comentarioRolId === 1 || comentarioRolId === 2
+      }
+
+      // Gestor puede eliminar solo su propio comentario
+      if (rolActualId === 2) {
+        return usuarioActualId === comentarioUsuarioId
+      }
+
+      // Solicitante puede eliminar solo su propio comentario
+      if (rolActualId === 1) {
+        return usuarioActualId === comentarioUsuarioId
+      }
+
+      return false
+    }
+
     const eliminarComentario = async (comentarioId) => {
       if (!confirm('¿Estás seguro de que deseas eliminar este comentario?')) return
 
@@ -789,6 +961,12 @@ export default {
 
     const cambiarEstado = async () => {
       if (!estadoSeleccionado.value) return
+      
+      // Si la solicitud es Nueva, debe tener un gestor asignado
+      if (estaNueva.value && !tieneGestorAsignado.value) {
+        errorMessage.value = 'No se puede cambiar el estado de una solicitud Nueva sin asignarla a un Gestor primero'
+        return
+      }
 
       const nuevoEstadoId = parseInt(estadoSeleccionado.value)
       
@@ -888,6 +1066,22 @@ export default {
       }
     }
 
+    const abrirModalEditar = () => {
+      solicitudEditando.value = solicitud.value
+      modalEditarIsOpen.value = true
+    }
+
+    const cerrarModalEditar = () => {
+      modalEditarIsOpen.value = false
+      solicitudEditando.value = null
+    }
+
+    const handleEditarSuccess = () => {
+      cerrarModalEditar()
+      // Recargar la solicitud
+      cargarSolicitud()
+    }
+
     onMounted(() => {
       cargarSolicitud()
     })
@@ -913,8 +1107,11 @@ export default {
       getPrioridadLabel,
       getPrioridadColor,
       formatDate,
+      getRolLabel,
+      getRolColor,
       solicitudesService,
       enviarComentario,
+      puedeEliminarComentario,
       eliminarComentario,
       cambiarEstado,
       asignarGestor,
@@ -926,6 +1123,12 @@ export default {
       // Modal de tomar solicitud
       mostrarModalTomarSolicitud,
       confirmarTomarSolicitud,
+      // Modal de edición
+      modalEditarIsOpen,
+      solicitudEditando,
+      abrirModalEditar,
+      cerrarModalEditar,
+      handleEditarSuccess,
       // Permisos
       esGestor,
       esAdmin,
@@ -935,14 +1138,18 @@ export default {
       puedeVerGestorAsignado,
       puedeCambiarEstado,
       puedeAsignarGestor,
+      estaNueva,
       estaRechazada,
       estaResuelta,
       estaCerrada,
       estaBloqueada,
+      tieneGestorAsignado,
       puedeAsignarGestorEnEsteEstado,
       puedeAgregarComentario,
       // Store
-      authStoreInstance
+      authStoreInstance,
+      // Origen de navegación
+      desdeMinsSolicitudes
     }
   }
 }

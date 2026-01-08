@@ -68,6 +68,7 @@ router.beforeEach((to, from, next) => {
   const requiresSuperAdmin = to.meta.requiresSuperAdmin
   const forbiddenRoles = to.meta.forbiddenRoles || []
   const rol = authStore.user?.rol
+  const desdeMinsSolicitudes = to.query.desde === 'misSolicitudes'
 
   // 1. Verificar autenticación
   if (requiresAuth && !authStore.isAuthenticated) {
@@ -82,7 +83,12 @@ router.beforeEach((to, from, next) => {
   }
 
   // 3. Verificar si el rol está en la lista de prohibidos
+  // Excepción: Los Solicitantes pueden ver detalle de solicitud si viene desde Mis Solicitudes
   if (forbiddenRoles.includes(rol)) {
+    if (rol === 1 && to.path.startsWith('/detalle-solicitud/') && desdeMinsSolicitudes) {
+      next()
+      return
+    }
     next('/solicitudes')
     return
   }

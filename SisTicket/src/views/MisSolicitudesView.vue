@@ -99,8 +99,10 @@
       <!-- Tabla de Solicitudes -->
       <SolicitudesTable 
         :solicitudes="solicitudesFiltradas"
-        :mostrarAccionesEditar="true"
+        :mostrarAccionesEditar="false"
+        :mostrarAccionesVer="true"
         @editar-solicitud="handleEditarSolicitud"
+        @ver-solicitud="handleVerSolicitud"
       />
     </div>
 
@@ -137,6 +139,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 import BottomNavBar from '../components/BottomNavBar.vue'
 import SolicitudesTable from '../components/SolicitudesTable.vue'
@@ -146,6 +149,7 @@ import { useMisSolicitudes } from '../composables/useMisSolicitudes'
 import { authStore } from '../stores/authStore'
 import { useNotification } from '../composables/useNotification'
 
+const router = useRouter()
 const { solicitudes, isLoading, cargarMisSolicitudes } = useMisSolicitudes()
 const authStoreInstance = authStore
 const { error: mostrarError } = useNotification()
@@ -249,6 +253,14 @@ const handleEditarSolicitud = (solicitud) => {
   
   solicitudEditando.value = solicitud
   modalEditarIsOpen.value = true
+}
+
+const handleVerSolicitud = (solicitud) => {
+  // Navegar a la vista de detalles de la solicitud con parámetro para indicar que es desde Mis Solicitudes
+  router.push({
+    path: `/detalle-solicitud/${solicitud.id}`,
+    query: { desde: 'misSolicitudes' }
+  })
 }
 
 const cerrarModalEditar = () => {
