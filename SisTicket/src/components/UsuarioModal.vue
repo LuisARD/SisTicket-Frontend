@@ -105,26 +105,150 @@
             <p v-if="getError('email')" class="text-sm text-red-500 mt-1">{{ getError('email') }}</p>
           </div>
 
-          <!-- Contraseña -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Contraseña
-              <span v-if="!isEditing" class="text-red-500">*</span>
-              <span v-else class="text-gray-500 text-xs">(Dejar vacío para no cambiar)</span>
-            </label>
-            <input
-              v-model="formData.password"
-              type="password"
-              :placeholder="isEditing ? 'Dejar vacío para mantener la actual' : 'Mínimo 6 caracteres'"
-              @blur="validarCampo('password')"
-              :class="[
-                'w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition',
-                hasError('password')
-                  ? 'border-red-500 focus:border-red-600'
-                  : 'border-gray-300 focus:border-indigo-600'
-              ]"
-            />
-            <p v-if="getError('password')" class="text-sm text-red-500 mt-1">{{ getError('password') }}</p>
+          <!-- Contraseña (Solo en edición) -->
+          <div v-if="isEditing" class="border-t-2 border-gray-200 pt-4 mt-4 space-y-4">
+            <p class="text-sm sm:text-base font-medium text-gray-700">Cambiar Contraseña (Opcional)</p>
+            
+            <!-- Nueva Contraseña -->
+            <div class="space-y-2">
+              <label for="passwordNueva" class="block text-sm font-medium text-gray-700 mb-1">
+                Nueva Contraseña
+              </label>
+              <input
+                id="passwordNueva"
+                v-model="formData.passwordNueva"
+                type="password"
+                placeholder="Dejar vacío para no cambiar"
+                @input="validarCampo('passwordNueva')"
+                :class="[
+                  'w-full px-4 py-2.5 border-2 rounded-lg focus:outline-none transition',
+                  hasError('passwordNueva')
+                    ? 'border-red-500 focus:border-red-600'
+                    : 'border-gray-300 focus:border-indigo-600'
+                ]"
+              />
+              <p v-if="getError('passwordNueva')" class="text-xs sm:text-sm text-red-500 mt-1">{{ getError('passwordNueva') }}</p>
+            </div>
+
+            <!-- Confirmar Contraseña -->
+            <div class="space-y-2">
+              <label for="passwordConfirmar" class="block text-sm font-medium text-gray-700 mb-1">
+                Confirmar Contraseña
+              </label>
+              <input
+                id="passwordConfirmar"
+                v-model="formData.passwordConfirmar"
+                type="password"
+                placeholder="Confirma la nueva contraseña"
+                @input="validarCampo('passwordConfirmar')"
+                :class="[
+                  'w-full px-4 py-2.5 border-2 rounded-lg focus:outline-none transition',
+                  hasError('passwordConfirmar')
+                    ? 'border-red-500 focus:border-red-600'
+                    : 'border-gray-300 focus:border-indigo-600'
+                ]"
+              />
+              <p v-if="getError('passwordConfirmar')" class="text-xs sm:text-sm text-red-500 mt-1">{{ getError('passwordConfirmar') }}</p>
+            </div>
+
+            <!-- Requisitos de Seguridad -->
+            <transition name="fade">
+              <div v-if="formData.passwordNueva" class="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-2">
+                <p class="text-xs sm:text-sm font-medium text-gray-700 mb-3">Requisitos:</p>
+                <div class="space-y-1.5">
+                  <div
+                    :class="[
+                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
+                      validacionesPassword.longitud
+                        ? 'text-green-700 bg-green-50'
+                        : 'text-gray-500'
+                    ]"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5 flex-shrink-0"
+                      :fill="validacionesPassword.longitud ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>8+ caracteres</span>
+                  </div>
+                  <div
+                    :class="[
+                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
+                      validacionesPassword.mayuscula
+                        ? 'text-green-700 bg-green-50'
+                        : 'text-gray-500'
+                    ]"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5 flex-shrink-0"
+                      :fill="validacionesPassword.mayuscula ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>1 mayúscula</span>
+                  </div>
+                  <div
+                    :class="[
+                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
+                      validacionesPassword.numero
+                        ? 'text-green-700 bg-green-50'
+                        : 'text-gray-500'
+                    ]"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5 flex-shrink-0"
+                      :fill="validacionesPassword.numero ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>1 número</span>
+                  </div>
+                  <div
+                    :class="[
+                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
+                      validacionesPassword.simbolo
+                        ? 'text-green-700 bg-green-50'
+                        : 'text-gray-500'
+                    ]"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5 flex-shrink-0"
+                      :fill="validacionesPassword.simbolo ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>1 símbolo (-, *, @, !, #, $, %, ^, &, +, =)</span>
+                  </div>
+                  <div
+                    :class="[
+                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
+                      validacionesPassword.coincidencia
+                        ? 'text-green-700 bg-green-50'
+                        : 'text-gray-500'
+                    ]"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5 flex-shrink-0"
+                      :fill="validacionesPassword.coincidencia ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Las contraseñas coinciden</span>
+                  </div>
+                </div>
+              </div>
+            </transition>
           </div>
 
           <!-- Rol -->
@@ -177,18 +301,18 @@
           </div>
 
           <!-- Botones -->
-          <div class="flex gap-3 pt-4">
+          <div class="flex flex-col-reverse sm:flex-row gap-3 pt-6">
             <button
               type="button"
               @click="cerrar"
-              class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition"
+              class="flex-1 px-4 py-2.5 sm:py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition text-sm sm:text-base"
             >
               Cancelar
             </button>
             <button
               type="submit"
               :disabled="isSubmitting"
-              class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition"
+              class="flex-1 px-4 py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition text-sm sm:text-base"
             >
               {{ isSubmitting ? '⏳ Guardando...' : isEditing ? 'Actualizar' : 'Crear' }}
             </button>
@@ -233,10 +357,22 @@ const formData = ref({
   apellido: '',
   nombreUsuario: '',
   email: '',
-  password: '',
+  passwordNueva: '',
+  passwordConfirmar: '',
   rol: '',
   areaId: ''
 })
+
+/**
+ * Validaciones de contraseña en tiempo real
+ */
+const validacionesPassword = computed(() => ({
+  longitud: formData.value.passwordNueva.length >= 8,
+  mayuscula: /[A-Z]/.test(formData.value.passwordNueva),
+  numero: /[0-9]/.test(formData.value.passwordNueva),
+  simbolo: /[-*@!#$%^&+=]/.test(formData.value.passwordNueva),
+  coincidencia: formData.value.passwordNueva === formData.value.passwordConfirmar && formData.value.passwordNueva !== ''
+}))
 
 /**
  * Obtiene las reglas de validación dinámicamente
@@ -250,12 +386,13 @@ const getValidationRules = () => {
       apellido: { required: false, minLength: 2, maxLength: 100 },
       nombreUsuario: { required: false, minLength: 3, maxLength: 50 },
       email: { required: false, email: true },
-      password: { required: false, minLength: 6 },
+      passwordNueva: { required: false, custom: 'passwordSegura' },
+      passwordConfirmar: { required: false, custom: 'passwordConfirmar' },
       rol: { required: false },
       areaId: { required: false }
     }
   } else {
-    // Al crear: campos requeridos
+    // Al crear: campos requeridos (SIN contraseña - se asigna en backend)
     // areaId es requerido solo si el rol es Gestor (2)
     const areaRequired = formData.value.rol === '2'
     return {
@@ -263,7 +400,6 @@ const getValidationRules = () => {
       apellido: { required: true, minLength: 2, maxLength: 100 },
       nombreUsuario: { required: true, minLength: 3, maxLength: 50 },
       email: { required: true, email: true },
-      password: { required: true, minLength: 6 },
       rol: { required: true },
       areaId: { required: areaRequired }
     }
@@ -282,7 +418,8 @@ watch(
         apellido: usuario.apellido || '',
         nombreUsuario: usuario.nombreUsuario || '',
         email: usuario.email || '',
-        password: '',
+        passwordNueva: '',
+        passwordConfirmar: '',
         rol: usuario.rol ? getRolId(usuario.rol) : '',
         areaId: usuario.areaId || ''
       }
@@ -292,7 +429,8 @@ watch(
         apellido: '',
         nombreUsuario: '',
         email: '',
-        password: '',
+        passwordNueva: '',
+        passwordConfirmar: '',
         rol: '',
         areaId: ''
       }
@@ -329,6 +467,26 @@ const validarCampo = (fieldName) => {
   // Si es requerido y está vacío
   if (rules.required && (!value || value.toString().trim() === '')) {
     fieldErrors.push('Este campo es requerido')
+  }
+
+  // Validaciones personalizadas para contraseña
+  if (rules.custom === 'passwordSegura' && value && value.toString().trim() !== '') {
+    if (!validacionesPassword.value.longitud) {
+      fieldErrors.push('Mínimo 8 caracteres')
+    }
+    if (!validacionesPassword.value.mayuscula) {
+      fieldErrors.push('Necesita al menos 1 mayúscula')
+    }
+    if (!validacionesPassword.value.numero) {
+      fieldErrors.push('Necesita al menos 1 número')
+    }
+    if (!validacionesPassword.value.simbolo) {
+      fieldErrors.push('Necesita al menos 1 símbolo (-, *, @, !, #, $, %, ^, &, +, =)')
+    }
+  }
+
+  if (rules.custom === 'passwordConfirmar' && formData.value.passwordNueva !== '' && value !== formData.value.passwordNueva) {
+    fieldErrors.push('Las contraseñas no coinciden')
   }
 
   // Solo validar formato/longitud si tiene contenido
@@ -405,7 +563,12 @@ const guardar = async () => {
       if (formData.value.apellido?.trim()) datosActualizar.apellido = formData.value.apellido
       if (formData.value.nombreUsuario?.trim()) datosActualizar.nombreUsuario = formData.value.nombreUsuario
       if (formData.value.email?.trim()) datosActualizar.email = formData.value.email
-      if (formData.value.password?.trim()) datosActualizar.password = formData.value.password
+      
+      // Si hay nueva contraseña, agregarla (con validaciones ya hechas)
+      if (formData.value.passwordNueva?.trim()) {
+        datosActualizar.password = formData.value.passwordNueva
+      }
+      
       if (formData.value.rol) datosActualizar.rol = parseInt(formData.value.rol)
       // areaId puede ser vacío (desasignar área), pero solo enviar si estaba asignado
       if (formData.value.areaId) datosActualizar.areaId = parseInt(formData.value.areaId)
@@ -414,13 +577,12 @@ const guardar = async () => {
       await usuariosService.updateUsuario(props.usuario.id, datosActualizar)
       emit('success', { action: 'update', data: datosActualizar })
     } else {
-      // Crear: enviar todos los datos requeridos
+      // Crear: enviar todos los datos requeridos (SIN contraseña - se asigna "Password@88" en backend)
       const datosCrear = {
         nombre: formData.value.nombre,
         apellido: formData.value.apellido,
         nombreUsuario: formData.value.nombreUsuario,
         email: formData.value.email,
-        password: formData.value.password,
         rol: parseInt(formData.value.rol),
         ...(formData.value.areaId && { areaId: parseInt(formData.value.areaId) })
       }

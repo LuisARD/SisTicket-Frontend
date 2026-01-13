@@ -6,6 +6,7 @@ export const authStore = reactive({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  tienePasswordTemporal: false,
 
   async login(nombreUsuario, password) {
     this.isLoading = true
@@ -23,10 +24,14 @@ export const authStore = reactive({
         rol: data.rol,
         area: data.area,
         areaId: data.areaId,
-        token: data.token
+        token: data.token,
+        tienePasswordTemporal: data.tienePasswordTemporal || false
       }
       this.isAuthenticated = true
+      // Guardar el flag de password temporal
+      this.tienePasswordTemporal = data.tienePasswordTemporal || false
       console.log('Estado del store actualizado:', this.user)
+      console.log('tienePasswordTemporal guardado en store:', this.tienePasswordTemporal)
       return data
     } catch (err) {
       this.error = err.response?.data?.message || 'Error al iniciar sesión'

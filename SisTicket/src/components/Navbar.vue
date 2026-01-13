@@ -16,7 +16,7 @@
           </h1>
         </div>
 
-        <!-- Info Usuario y Botón -->
+        <!-- Info Usuario y Botones -->
         <div class="flex items-center gap-3 sm:gap-6">
           <div class="text-right hidden sm:block">
             <div class="flex items-center justify-end gap-2 mb-1">
@@ -34,6 +34,30 @@
             </p>
           </div>
 
+          <!-- Botón Cambiar Contraseña -->
+          <button
+            @click="mostrarModalPassword = true"
+            class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-blue-600 border-2 border-blue-400 rounded-lg hover:border-blue-600 hover:text-blue-800 transition"
+            title="Cambiar contraseña"
+          >
+            <svg
+              class="w-4 h-4 sm:w-5 sm:h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+              />
+            </svg>
+            <span class="hidden sm:inline">Cambiar Contraseña</span>
+            <span class="sm:hidden">Contraseña</span>
+          </button>
+
+          <!-- Botón Cerrar Sesión -->
           <button
             @click="logout"
             class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-700 border-2 border-gray-400 rounded-lg hover:border-gray-600 hover:text-gray-900 transition"
@@ -57,20 +81,35 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Cambio de Contraseña (Voluntario) -->
+    <CambiarPasswordTemporalModal
+      :visible="mostrarModalPassword"
+      :is-required="false"
+      @close="mostrarModalPassword = false"
+      @cambio-exitoso="mostrarModalPassword = false"
+    />
   </nav>
 </template>
 
 <script>
+import { ref } from 'vue'
 import { useAuth } from '../composables/useAuth'
+import CambiarPasswordTemporalModal from './CambiarPasswordTemporalModal.vue'
 
 export default {
   name: 'Navbar',
+  components: {
+    CambiarPasswordTemporalModal
+  },
   setup() {
     const { user, logout } = useAuth()
+    const mostrarModalPassword = ref(false)
 
     return {
       user,
-      logout
+      logout,
+      mostrarModalPassword
     }
   }
 }

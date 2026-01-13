@@ -1,5 +1,20 @@
 import api from './api'
 
+/**
+ * Interface para la respuesta de login
+ * @typedef {Object} LoginResponse
+ * @property {number} id - ID del usuario
+ * @property {string} nombreUsuario - Nombre de usuario
+ * @property {string} nombre - Nombre del usuario
+ * @property {string} apellido - Apellido del usuario
+ * @property {string} email - Email del usuario
+ * @property {string} rol - Rol del usuario
+ * @property {string} [area] - Área del usuario (opcional)
+ * @property {number} [areaId] - ID del área (opcional)
+ * @property {string} token - Token JWT para autenticación
+ * @property {boolean} tienePasswordTemporal - Indica si el usuario debe cambiar su contraseña
+ */
+
 const authService = {
   login: async (nombreUsuario, password) => {
     try {

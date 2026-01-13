@@ -82,24 +82,72 @@
 
       </div>
     </div>
+
+    <!-- Modal de Cambio de Contraseña Temporal -->
+    <CambiarPasswordTemporalModal
+      :visible="mostrarModalPassword"
+      :is-required="true"
+      @close="handleCerrarModalPassword"
+      @cambio-exitoso="handleCambioExitoso"
+    />
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useLogin } from '../composables/useLogin'
+import { authStore } from '../stores/authStore'
+import CambiarPasswordTemporalModal from '../components/CambiarPasswordTemporalModal.vue'
 
 export default {
   name: 'LoginView',
+  components: {
+    CambiarPasswordTemporalModal
+  },
   setup() {
     const formData = ref({
       nombreUsuario: '',
       password: ''
     })
+    const mostrarModalPassword = ref(false)
     const { login, isLoading, error, clearError } = useLogin()
 
+    // Detectar cuando se debe mostrar el modal de cambio de contraseña
+    watch(
+      () => authStore.tienePasswordTemporal,
+      (newVal) => {
+        console.log('[LoginView] tienePasswordTemporal cambió a:', newVal)
+        console.log('[LoginView] mostrarModalPassword.value ANTES de asignar:', mostrarModalPassword.value)
+        
+        if (newVal === true) {
+          console.log('[LoginView] ✓ Asignando mostrarModalPassword = true')
+          mostrarModalPassword.value = true
+          console.log('[LoginView] mostrarModalPassword.value DESPUÉS de asignar:', mostrarModalPassword.value)
+        }
+      },
+      { immediate: true, flush: 'post' }
+    )
+
     const handleLogin = async () => {
-      await login(formData.value.nombreUsuario, formData.value.password)
+      clearError()
+      try {
+        console.log('[LoginView] Iniciando login...')
+        await login(formData.value.nombreUsuario, formData.value.password)
+        console.log('[LoginView] Login completado. authStore.tienePasswordTemporal:', authStore.tienePasswordTemporal)
+        // El watch se encargará de mostrar el modal
+      } catch (err) {
+        console.error('[LoginView] Error en login:', err)
+      }
+    }
+
+    const handleCerrarModalPassword = () => {
+      // El modal no debería cerrarse porque es obligatorio
+      // Solo se cierra después de un cambio exitoso
+    }
+
+    const handleCambioExitoso = () => {
+      mostrarModalPassword.value = false
+      // El modal ya maneja la redirección a /mis-solicitudes
     }
 
     return {
@@ -107,7 +155,10 @@ export default {
       isLoading,
       error,
       clearError,
-      handleLogin
+      handleLogin,
+      mostrarModalPassword,
+      handleCerrarModalPassword,
+      handleCambioExitoso
     }
   }
 }
