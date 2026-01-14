@@ -44,14 +44,33 @@
             <label for="passwordActual" class="block text-sm sm:text-base font-medium text-gray-700">
               Contraseña Actual
             </label>
-            <input
-              id="passwordActual"
-              v-model="passwordActual"
-              type="password"
-              placeholder="Ingresa tu contraseña actual"
-              class="w-full px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
-              :disabled="isLoading"
-            />
+            <div class="relative">
+              <input
+                id="passwordActual"
+                v-model="passwordActual"
+                :type="mostrarPasswordActual ? 'text' : 'password'"
+                placeholder="Ingresa tu contraseña actual"
+                class="w-full px-4 py-2.5 sm:py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
+                :disabled="isLoading"
+              />
+              <button
+                type="button"
+                @click="mostrarPasswordActual = !mostrarPasswordActual"
+                :disabled="isLoading"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                :aria-label="mostrarPasswordActual ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <svg v-if="mostrarPasswordActual" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
+                  <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
+                  <path d="M3 3l18 18" />
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                  <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Campo Nueva Contraseña -->
@@ -59,14 +78,33 @@
             <label for="passwordNueva" class="block text-sm sm:text-base font-medium text-gray-700">
               Nueva Contraseña
             </label>
-            <input
-              id="passwordNueva"
-              v-model="passwordNueva"
-              type="password"
-              placeholder="Ingresa tu nueva contraseña"
-              class="w-full px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
-              :disabled="isLoading"
-            />
+            <div class="relative">
+              <input
+                id="passwordNueva"
+                v-model="passwordNueva"
+                :type="mostrarPasswordNueva ? 'text' : 'password'"
+                placeholder="Ingresa tu nueva contraseña"
+                class="w-full px-4 py-2.5 sm:py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
+                :disabled="isLoading"
+              />
+              <button
+                type="button"
+                @click="mostrarPasswordNueva = !mostrarPasswordNueva"
+                :disabled="isLoading"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                :aria-label="mostrarPasswordNueva ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <svg v-if="mostrarPasswordNueva" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
+                  <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
+                  <path d="M3 3l18 18" />
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                  <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Campo Confirmar Contraseña -->
@@ -74,14 +112,33 @@
             <label for="confirmarPassword" class="block text-sm sm:text-base font-medium text-gray-700">
               Confirmar Contraseña
             </label>
-            <input
-              id="confirmarPassword"
-              v-model="confirmarPassword"
-              type="password"
-              placeholder="Confirma tu nueva contraseña"
-              class="w-full px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
-              :disabled="isLoading"
-            />
+            <div class="relative">
+              <input
+                id="confirmarPassword"
+                v-model="confirmarPassword"
+                :type="mostrarConfirmarPassword ? 'text' : 'password'"
+                placeholder="Confirma tu nueva contraseña"
+                class="w-full px-4 py-2.5 sm:py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
+                :disabled="isLoading"
+              />
+              <button
+                type="button"
+                @click="mostrarConfirmarPassword = !mostrarConfirmarPassword"
+                :disabled="isLoading"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                :aria-label="mostrarConfirmarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <svg v-if="mostrarConfirmarPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
+                  <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
+                  <path d="M3 3l18 18" />
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                  <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Requisitos de Seguridad -->
@@ -239,14 +296,6 @@
             Cancelar
           </button>
           <button
-            v-else
-            @click="handleLogout"
-            :disabled="isLoading"
-            class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
-          >
-            Cerrar Sesión
-          </button>
-          <button
             @click="handleCambiarPassword"
             :disabled="!todasValidacionesCumplen || isLoading"
             class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
@@ -281,6 +330,9 @@ export default {
   setup(props, { emit }) {
     const router = useRouter()
     const mostrarModal = ref(props.visible)
+    const mostrarPasswordActual = ref(false)
+    const mostrarPasswordNueva = ref(false)
+    const mostrarConfirmarPassword = ref(false)
 
     const {
       passwordActual,
@@ -313,15 +365,6 @@ export default {
         limpiarFormulario()
         limpiarError()
         emit('close')
-      }
-    }
-
-    const handleLogout = async () => {
-      try {
-        await authStore.logout()
-        router.push('/login')
-      } catch (err) {
-        console.error('Error en logout:', err)
       }
     }
 
@@ -359,7 +402,9 @@ export default {
       todasValidacionesCumplen,
       cerrarModal,
       handleCambiarPassword,
-      handleLogout
+      mostrarPasswordActual,
+      mostrarPasswordNueva,
+      mostrarConfirmarPassword
     }
   }
 }

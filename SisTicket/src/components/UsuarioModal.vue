@@ -128,19 +128,37 @@
               <label for="passwordNueva" class="block text-sm font-medium text-gray-700 mb-1">
                 Nueva Contraseña
               </label>
-              <input
-                id="passwordNueva"
-                v-model="formData.passwordNueva"
-                type="password"
-                placeholder="Dejar vacío para no cambiar"
-                @input="validarCampo('passwordNueva')"
-                :class="[
-                  'w-full px-4 py-2.5 border-2 rounded-lg focus:outline-none transition',
-                  hasError('passwordNueva')
-                    ? 'border-red-500 focus:border-red-600'
-                    : 'border-gray-300 focus:border-indigo-600'
-                ]"
-              />
+              <div class="relative">
+                <input
+                  id="passwordNueva"
+                  v-model="formData.passwordNueva"
+                  :type="mostrarPasswordNueva ? 'text' : 'password'"
+                  placeholder="Dejar vacío para no cambiar"
+                  @input="validarCampo('passwordNueva')"
+                  :class="[
+                    'w-full px-4 py-2.5 pr-10 border-2 rounded-lg focus:outline-none transition',
+                    hasError('passwordNueva')
+                      ? 'border-red-500 focus:border-red-600'
+                      : 'border-gray-300 focus:border-indigo-600'
+                  ]"
+                />
+                <button
+                  type="button"
+                  @click="mostrarPasswordNueva = !mostrarPasswordNueva"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+                  :aria-label="mostrarPasswordNueva ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  <svg v-if="mostrarPasswordNueva" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
+                    <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
+                    <path d="M3 3l18 18" />
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                  </svg>
+                </button>
+              </div>
               <p v-if="getError('passwordNueva')" class="text-xs sm:text-sm text-red-500 mt-1">{{ getError('passwordNueva') }}</p>
             </div>
 
@@ -149,19 +167,37 @@
               <label for="passwordConfirmar" class="block text-sm font-medium text-gray-700 mb-1">
                 Confirmar Contraseña
               </label>
-              <input
-                id="passwordConfirmar"
-                v-model="formData.passwordConfirmar"
-                type="password"
-                placeholder="Confirma la nueva contraseña"
-                @input="validarCampo('passwordConfirmar')"
-                :class="[
-                  'w-full px-4 py-2.5 border-2 rounded-lg focus:outline-none transition',
-                  hasError('passwordConfirmar')
-                    ? 'border-red-500 focus:border-red-600'
-                    : 'border-gray-300 focus:border-indigo-600'
-                ]"
-              />
+              <div class="relative">
+                <input
+                  id="passwordConfirmar"
+                  v-model="formData.passwordConfirmar"
+                  :type="mostrarConfirmarPassword ? 'text' : 'password'"
+                  placeholder="Confirma la nueva contraseña"
+                  @input="validarCampo('passwordConfirmar')"
+                  :class="[
+                    'w-full px-4 py-2.5 pr-10 border-2 rounded-lg focus:outline-none transition',
+                    hasError('passwordConfirmar')
+                      ? 'border-red-500 focus:border-red-600'
+                      : 'border-gray-300 focus:border-indigo-600'
+                  ]"
+                />
+                <button
+                  type="button"
+                  @click="mostrarConfirmarPassword = !mostrarConfirmarPassword"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+                  :aria-label="mostrarConfirmarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  <svg v-if="mostrarConfirmarPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
+                    <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
+                    <path d="M3 3l18 18" />
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                  </svg>
+                </button>
+              </div>
               <p v-if="getError('passwordConfirmar')" class="text-xs sm:text-sm text-red-500 mt-1">{{ getError('passwordConfirmar') }}</p>
             </div>
 
@@ -407,6 +443,8 @@ const touched = ref({})
 const errors = ref({})
 const mostrarConfirmacionRestablecer = ref(false)
 const isRestableciendo = ref(false)
+const mostrarPasswordNueva = ref(false)
+const mostrarConfirmarPassword = ref(false)
 
 const isEditing = computed(() => !!props.usuario?.id)
 
