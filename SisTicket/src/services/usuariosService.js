@@ -162,6 +162,21 @@ export const usuariosService = {
       console.error('Error cambiarMiPassword:', error)
       throw error
     }
+  },
+
+  /**
+   * Restablece la contraseña de un usuario a la contraseña por defecto
+   * @param {number} id - ID del usuario
+   * @returns {Promise}
+   */
+  async restablecerPassword(id) {
+    try {
+      const response = await apiClient.post(`/Usuarios/${id}/restablecer-password`)
+      return response.data
+    } catch (error) {
+      console.error('Error restablecerPassword:', error)
+      throw new Error(error.response?.data?.message || 'Error al restablecer la contraseña')
+    }
   }
 }
 

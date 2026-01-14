@@ -107,7 +107,21 @@
 
           <!-- Contraseña (Solo en edición) -->
           <div v-if="isEditing" class="border-t-2 border-gray-200 pt-4 mt-4 space-y-4">
-            <p class="text-sm sm:text-base font-medium text-gray-700">Cambiar Contraseña (Opcional)</p>
+            <div class="flex items-center justify-between">
+              <p class="text-sm sm:text-base font-medium text-gray-700">Cambiar Contraseña (Opcional)</p>
+              <button
+                type="button"
+                @click="mostrarConfirmacionRestablecer = true"
+                :disabled="isSubmitting || isRestableciendo"
+                class="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
+                title="Restablecer contraseña a Password@88"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Restablecer</span>
+              </button>
+            </div>
             
             <!-- Nueva Contraseña -->
             <div class="space-y-2">
@@ -321,6 +335,48 @@
       </div>
     </div>
   </Transition>
+
+  <!-- Modal de Confirmación para Restablecer Contraseña -->
+  <Transition name="fade">
+    <div v-if="mostrarConfirmacionRestablecer" class="fixed inset-0 bg-gray-400 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-4">
+          <h3 class="text-lg font-bold">Restablecer Contraseña</h3>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 space-y-4">
+          <p class="text-gray-700">
+            ¿Estás seguro de que deseas restablecer la contraseña de <strong>{{ props.usuario?.nombre }} {{ props.usuario?.apellido }}</strong> a la contraseña por defecto?
+          </p>
+          <p class="text-sm text-gray-500">
+            El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex flex-col-reverse sm:flex-row gap-3">
+          <button
+            type="button"
+            @click="mostrarConfirmacionRestablecer = false"
+            :disabled="isRestableciendo"
+            class="flex-1 px-4 py-2.5 bg-gray-300 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed text-gray-800 font-semibold rounded-lg transition text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            @click="restablecerPassword"
+            :disabled="isRestableciendo"
+            class="flex-1 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition text-sm"
+          >
+            {{ isRestableciendo ? 'Restableciendo...' : 'Sí, Restablecer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup>
@@ -349,6 +405,8 @@ const isSubmitting = ref(false)
 const error = ref(null)
 const touched = ref({})
 const errors = ref({})
+const mostrarConfirmacionRestablecer = ref(false)
+const isRestableciendo = ref(false)
 
 const isEditing = computed(() => !!props.usuario?.id)
 
@@ -598,6 +656,38 @@ const guardar = async () => {
     error.value = err.message || (isEditing.value ? 'Error al actualizar el usuario' : 'Error al crear el usuario')
   } finally {
     isSubmitting.value = false
+  }
+}
+
+/**
+ * Restablece la contraseña del usuario
+ */
+const restablecerPassword = async () => {
+  try {
+    isRestableciendo.value = true
+    error.value = null
+    
+    console.log('[UsuarioModal] Restableciendo contraseña para usuario ID:', props.usuario.id)
+    await usuariosService.restablecerPassword(props.usuario.id)
+    
+    // Cerrar modal de confirmación
+    mostrarConfirmacionRestablecer.value = false
+    
+    // Mostrar éxito
+    emit('success', { 
+      action: 'restablecer-password', 
+      data: { 
+        usuarioId: props.usuario.id,
+        mensaje: 'Contraseña restablecida a Password@88'
+      }
+    })
+    
+    cerrar()
+  } catch (err) {
+    console.error('[UsuarioModal] Error al restablecer contraseña:', err)
+    error.value = err.message || 'Error al restablecer la contraseña'
+  } finally {
+    isRestableciendo.value = false
   }
 }
 
