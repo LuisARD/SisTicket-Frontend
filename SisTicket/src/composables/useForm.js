@@ -88,7 +88,6 @@ export function useForm(initialData = {}, onSubmit = null) {
     }
 
     if (!onSubmit) {
-      console.warn('No hay función onSubmit configurada')
       return false
     }
 

@@ -15,7 +15,6 @@ export const useCatalogos = () => {
     try {
       const data = await catalogosService.getAreas()
       areas.value = Array.isArray(data) ? data : []
-      console.log('Áreas cargadas:', areas.value.length)
     } catch (error) {
       console.error('Error al cargar áreas:', error)
       showError('Error al cargar áreas')
@@ -30,7 +29,6 @@ export const useCatalogos = () => {
     try {
       const data = await catalogosService.getPrioridades()
       prioridades.value = Array.isArray(data) ? data : []
-      console.log('Prioridades cargadas:', prioridades.value.length)
     } catch (error) {
       console.error('Error al cargar prioridades:', error)
       showError('Error al cargar prioridades')
@@ -45,7 +43,6 @@ export const useCatalogos = () => {
     try {
       const data = await catalogosService.getTiposSolicitud()
       tiposSolicitud.value = Array.isArray(data) ? data : []
-      console.log('Tipos de solicitud cargados:', tiposSolicitud.value.length)
     } catch (error) {
       console.error('Error al cargar tipos de solicitud:', error)
       showError('Error al cargar tipos de solicitud')

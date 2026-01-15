@@ -18,12 +18,10 @@ import api from './api'
 const authService = {
   login: async (nombreUsuario, password) => {
     try {
-      console.log('Enviando login a:', 'http://localhost:5146/api/Auth/login')
       const response = await api.post('/Auth/login', {
         nombreUsuario,
         password
       })
-      console.log('Login exitoso:', response.data)
       return response.data
     } catch (error) {
       console.error('Error en login:', error.response?.data || error.message)
@@ -47,8 +45,6 @@ const authService = {
       sessionStorage.removeItem('token')
       sessionStorage.removeItem('user')
       sessionStorage.removeItem('auth')
-      
-      console.log('Logout exitoso - sesión cerrada')
     } catch (error) {
       console.error('Error en logout:', error.message)
       // Aún así limpiar el estado local aunque falle la llamada al servidor
@@ -61,7 +57,6 @@ const authService = {
   getCurrentUser: async () => {
     try {
       const response = await api.get('/Auth/me')
-      console.log('Usuario actual:', response.data)
       return response.data
     } catch (error) {
       console.error('Error obteniendo usuario:', error.message)

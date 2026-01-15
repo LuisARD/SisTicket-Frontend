@@ -6,6 +6,7 @@ import SolicitudDetalleView from '../views/SolicitudDetalleView.vue'
 import MisSolicitudesView from '../views/MisSolicitudesView.vue'
 import UsuariosView from '../views/UsuariosView.vue'
 import CatalogosView from '../views/CatalogosView.vue'
+import ReportesView from '../views/ReportesView.vue'
 import { authStore } from '../stores/authStore'
 
 const routes = [
@@ -54,6 +55,12 @@ const routes = [
     name: 'Usuarios',
     component: UsuariosView,
     meta: { requiresAuth: true, requiresSuperAdmin: true } // Solo SuperAdmin
+  },
+  {
+    path: '/reportes',
+    name: 'Reportes',
+    component: ReportesView,
+    meta: { requiresAuth: true, forbiddenRoles: [1, 2] } // Solo Admin (3) y SuperAdmin (4)
   }
 ]
 

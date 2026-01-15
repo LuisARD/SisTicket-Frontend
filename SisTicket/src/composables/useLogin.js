@@ -23,7 +23,6 @@ export const useLogin = () => {
       // Si el usuario tiene contraseña temporal, NO redirigir aún
       // El modal se mostrará y después redirigirá al cambiar la contraseña
       if (authStore.tienePasswordTemporal === true) {
-        console.log('[useLogin] Usuario tiene contraseña temporal, esperando cambio antes de redirigir...')
         return true
       }
       

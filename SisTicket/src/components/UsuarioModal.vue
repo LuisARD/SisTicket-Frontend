@@ -643,7 +643,6 @@ const hasError = (fieldName) => {
  */
 const guardar = async () => {
   if (!validarFormulario()) {
-    console.log('Errores de validación:', errors.value)
     return
   }
 
@@ -669,7 +668,6 @@ const guardar = async () => {
       // areaId puede ser vacío (desasignar área), pero solo enviar si estaba asignado
       if (formData.value.areaId) datosActualizar.areaId = parseInt(formData.value.areaId)
 
-      console.log('Datos a actualizar:', datosActualizar)
       await usuariosService.updateUsuario(props.usuario.id, datosActualizar)
       emit('success', { action: 'update', data: datosActualizar })
     } else {
@@ -683,7 +681,6 @@ const guardar = async () => {
         ...(formData.value.areaId && { areaId: parseInt(formData.value.areaId) })
       }
 
-      console.log('Datos a crear:', datosCrear)
       await usuariosService.createUsuario(datosCrear)
       emit('success', { action: 'create', data: datosCrear })
     }
@@ -705,7 +702,6 @@ const restablecerPassword = async () => {
     isRestableciendo.value = true
     error.value = null
     
-    console.log('[UsuarioModal] Restableciendo contraseña para usuario ID:', props.usuario.id)
     await usuariosService.restablecerPassword(props.usuario.id)
     
     // Cerrar modal de confirmación

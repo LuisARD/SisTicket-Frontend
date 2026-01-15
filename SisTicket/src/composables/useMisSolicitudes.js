@@ -24,7 +24,6 @@ export const useMisSolicitudes = () => {
 
       const response = await api.get(url)
       solicitudes.value = Array.isArray(response.data) ? response.data : []
-      console.log('Mis solicitudes cargadas:', solicitudes.value.length)
     } catch (err) {
       console.error('Error al cargar solicitudes:', err)
       showError('Error al cargar solicitudes')

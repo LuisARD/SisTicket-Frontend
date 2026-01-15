@@ -138,13 +138,8 @@ export default {
     watch(
       () => authStore.tienePasswordTemporal,
       (newVal) => {
-        console.log('[LoginView] tienePasswordTemporal cambió a:', newVal)
-        console.log('[LoginView] mostrarModalPassword.value ANTES de asignar:', mostrarModalPassword.value)
-        
         if (newVal === true) {
-          console.log('[LoginView] ✓ Asignando mostrarModalPassword = true')
           mostrarModalPassword.value = true
-          console.log('[LoginView] mostrarModalPassword.value DESPUÉS de asignar:', mostrarModalPassword.value)
         }
       },
       { immediate: true, flush: 'post' }
@@ -153,9 +148,7 @@ export default {
     const handleLogin = async () => {
       clearError()
       try {
-        console.log('[LoginView] Iniciando login...')
         await login(formData.value.nombreUsuario, formData.value.password)
-        console.log('[LoginView] Login completado. authStore.tienePasswordTemporal:', authStore.tienePasswordTemporal)
         // El watch se encargará de mostrar el modal
       } catch (err) {
         console.error('[LoginView] Error en login:', err)

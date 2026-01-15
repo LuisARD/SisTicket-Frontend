@@ -733,24 +733,20 @@ export default {
     // Computed que retorna los estados disponibles según el estado actual y el rol
     const estadosDisponibles = computed(() => {
       if (!solicitud.value?.estado) {
-        console.log('Sin estado en solicitud')
         return []
       }
       
       let estadoActual = solicitud.value.estado
-      console.log('Estado actual desde solicitud:', estadoActual, 'Tipo:', typeof estadoActual)
       
       // Si el estado es string, convertirlo a número
       if (typeof estadoActual === 'string') {
         // Limpiar espacios en blanco
         estadoActual = estadoActual.trim()
         estadoActual = ESTADO_STRING_A_ID[estadoActual]
-        console.log('Estado convertido a número:', estadoActual)
       }
       
       // Si no tenemos un ID válido, retornar vacío
       if (!estadoActual || !TRANSICIONES_VALIDAS[estadoActual]) {
-        console.log('Estado inválido o sin transiciones:', estadoActual)
         return []
       }
       
@@ -764,14 +760,11 @@ export default {
         estadosValidos = estadosValidos.filter(estadoId => estadoId === 3 || estadoId === 4)
       }
       
-      console.log('Estados válidos disponibles:', estadosValidos)
-      
       const resultado = estadosValidos.map(estadoId => ({
         id: estadoId,
         label: ESTADO_LABELS[estadoId]
       }))
       
-      console.log('Resultado de estadosDisponibles:', resultado)
       return resultado
     })
 
@@ -782,10 +775,6 @@ export default {
       try {
         const response = await solicitudesService.getSolicitudesDetalleById(solicitudId)
         solicitud.value = response
-        console.log('Solicitud cargada:', solicitud.value)
-        console.log('Estado de solicitud:', solicitud.value?.estado, 'Tipo:', typeof solicitud.value?.estado)
-        console.log('Área:', solicitud.value?.areaNombre, solicitud.value?.area?.nombre)
-        console.log('Tipo:', solicitud.value?.tipoNombre, solicitud.value?.tipoSolicitud?.nombre, solicitud.value?.tipo)
         
         // Cargar gestores del área de la solicitud
         await cargarGestores()
@@ -832,8 +821,6 @@ export default {
           }
           return comentario
         })
-        
-        console.log('Comentarios cargados:', comentarios.value)
       } catch (error) {
         console.error('Error cargando comentarios:', error)
         comentarios.value = []
@@ -861,7 +848,6 @@ export default {
         })
         
         gestores.value = gestoresDelArea
-        console.log('Gestores del área cargados:', gestores.value)
       } catch (error) {
         console.error('Error cargando gestores:', error)
         gestores.value = []
@@ -872,7 +858,6 @@ export default {
       try {
         const response = await solicitudesService.getAdjuntos(solicitudId)
         adjuntos.value = response || []
-        console.log('Adjuntos cargados:', adjuntos.value)
       } catch (error) {
         console.error('Error cargando adjuntos:', error)
         adjuntos.value = []

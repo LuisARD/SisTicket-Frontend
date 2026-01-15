@@ -12,9 +12,7 @@ export const authStore = reactive({
     this.isLoading = true
     this.error = null
     try {
-      console.log('Iniciando login...')
       const data = await authService.login(nombreUsuario, password)
-      console.log('Datos de usuario recibidos:', data)
       this.user = {
         id: data.id,
         nombreUsuario: data.nombreUsuario,
@@ -30,8 +28,6 @@ export const authStore = reactive({
       this.isAuthenticated = true
       // Guardar el flag de password temporal
       this.tienePasswordTemporal = data.tienePasswordTemporal || false
-      console.log('Estado del store actualizado:', this.user)
-      console.log('tienePasswordTemporal guardado en store:', this.tienePasswordTemporal)
       return data
     } catch (err) {
       this.error = err.response?.data?.message || 'Error al iniciar sesión'

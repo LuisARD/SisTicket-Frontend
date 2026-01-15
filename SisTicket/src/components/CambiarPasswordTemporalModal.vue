@@ -384,7 +384,6 @@ export default {
           emit('close')
           // Si viene desde login, redirigir al dashboard
           if (props.isRequired) {
-            console.log('[CambiarPasswordTemporalModal] Cambio de contraseña exitoso, redirigiendo a /mis-solicitudes')
             router.push('/mis-solicitudes')
           }
         }, 500)
