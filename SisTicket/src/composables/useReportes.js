@@ -25,9 +25,9 @@ export const useReportes = () => {
   const cargarGestores = async () => {
     try {
       const data = await usuariosService.getUsuarios()
-      // Filtrar solo los gestores (rol 2)
+      // Filtrar solo los gestores (rol 2) que están activos
       gestores.value = Array.isArray(data) 
-        ? data.filter(u => u.idRol === 2 || u.rol === 'Gestor')
+        ? data.filter(u => (u.idRol === 2 || u.rol === 'Gestor') && u.activo === true)
         : []
     } catch (err) {
       console.error('Error al cargar gestores:', err)

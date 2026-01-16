@@ -105,198 +105,41 @@
             <p v-if="getError('email')" class="text-sm text-red-500 mt-1">{{ getError('email') }}</p>
           </div>
 
-          <!-- Contraseña (Solo en edición) -->
-          <div v-if="isEditing" class="border-t-2 border-gray-200 pt-4 mt-4 space-y-4">
-            <div class="flex items-center justify-between">
-              <p class="text-sm sm:text-base font-medium text-gray-700">Cambiar Contraseña (Opcional)</p>
-              <button
-                type="button"
-                @click="mostrarConfirmacionRestablecer = true"
-                :disabled="isSubmitting || isRestableciendo"
-                class="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
-                title="Restablecer contraseña a Password@88"
+          <!-- Restablecer Contraseña (Solo en edición - Expandible) -->
+          <div v-if="isEditing" class="border-t-2 border-gray-200 pt-4 mt-4">
+            <button
+              type="button"
+              @click="mostrarSeccionRestablecer = !mostrarSeccionRestablecer"
+              class="w-full flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition border border-orange-200"
+            >
+              <span class="text-sm sm:text-base font-medium text-orange-800">Restablecer Contraseña</span>
+              <svg 
+                :class="['w-5 h-5 text-orange-600 transition-transform', mostrarSeccionRestablecer ? 'rotate-180' : '']"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span>Restablecer</span>
-              </button>
-            </div>
-            
-            <!-- Nueva Contraseña -->
-            <div class="space-y-2">
-              <label for="passwordNueva" class="block text-sm font-medium text-gray-700 mb-1">
-                Nueva Contraseña
-              </label>
-              <div class="relative">
-                <input
-                  id="passwordNueva"
-                  v-model="formData.passwordNueva"
-                  :type="mostrarPasswordNueva ? 'text' : 'password'"
-                  placeholder="Dejar vacío para no cambiar"
-                  @input="validarCampo('passwordNueva')"
-                  :class="[
-                    'w-full px-4 py-2.5 pr-10 border-2 rounded-lg focus:outline-none transition',
-                    hasError('passwordNueva')
-                      ? 'border-red-500 focus:border-red-600'
-                      : 'border-gray-300 focus:border-indigo-600'
-                  ]"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </button>
+
+            <!-- Contenido expandible -->
+            <transition name="expand">
+              <div v-if="mostrarSeccionRestablecer" class="mt-3 p-4 bg-orange-50 rounded-lg border border-orange-200 space-y-3">
+                <p class="text-sm text-orange-800">
+                  Restablece la contraseña del usuario a la contraseña por defecto. El usuario deberá cambiarla en su próximo inicio de sesión.
+                </p>
                 <button
                   type="button"
-                  @click="mostrarPasswordNueva = !mostrarPasswordNueva"
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
-                  :aria-label="mostrarPasswordNueva ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  @click="mostrarConfirmacionRestablecer = true"
+                  :disabled="isSubmitting || isRestableciendo"
+                  class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition text-sm"
                 >
-                  <svg v-if="mostrarPasswordNueva" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
-                    <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
-                    <path d="M3 3l18 18" />
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                  </svg>
+                  <span>Restablecer Contraseña</span>
                 </button>
-              </div>
-              <p v-if="getError('passwordNueva')" class="text-xs sm:text-sm text-red-500 mt-1">{{ getError('passwordNueva') }}</p>
-            </div>
-
-            <!-- Confirmar Contraseña -->
-            <div class="space-y-2">
-              <label for="passwordConfirmar" class="block text-sm font-medium text-gray-700 mb-1">
-                Confirmar Contraseña
-              </label>
-              <div class="relative">
-                <input
-                  id="passwordConfirmar"
-                  v-model="formData.passwordConfirmar"
-                  :type="mostrarConfirmarPassword ? 'text' : 'password'"
-                  placeholder="Confirma la nueva contraseña"
-                  @input="validarCampo('passwordConfirmar')"
-                  :class="[
-                    'w-full px-4 py-2.5 pr-10 border-2 rounded-lg focus:outline-none transition',
-                    hasError('passwordConfirmar')
-                      ? 'border-red-500 focus:border-red-600'
-                      : 'border-gray-300 focus:border-indigo-600'
-                  ]"
-                />
-                <button
-                  type="button"
-                  @click="mostrarConfirmarPassword = !mostrarConfirmarPassword"
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
-                  :aria-label="mostrarConfirmarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-                >
-                  <svg v-if="mostrarConfirmarPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
-                    <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
-                    <path d="M3 3l18 18" />
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                  </svg>
-                </button>
-              </div>
-              <p v-if="getError('passwordConfirmar')" class="text-xs sm:text-sm text-red-500 mt-1">{{ getError('passwordConfirmar') }}</p>
-            </div>
-
-            <!-- Requisitos de Seguridad -->
-            <transition name="fade">
-              <div v-if="formData.passwordNueva" class="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-2">
-                <p class="text-xs sm:text-sm font-medium text-gray-700 mb-3">Requisitos:</p>
-                <div class="space-y-1.5">
-                  <div
-                    :class="[
-                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
-                      validacionesPassword.longitud
-                        ? 'text-green-700 bg-green-50'
-                        : 'text-gray-500'
-                    ]"
-                  >
-                    <svg
-                      class="w-3.5 h-3.5 flex-shrink-0"
-                      :fill="validacionesPassword.longitud ? 'currentColor' : 'none'"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>8+ caracteres</span>
-                  </div>
-                  <div
-                    :class="[
-                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
-                      validacionesPassword.mayuscula
-                        ? 'text-green-700 bg-green-50'
-                        : 'text-gray-500'
-                    ]"
-                  >
-                    <svg
-                      class="w-3.5 h-3.5 flex-shrink-0"
-                      :fill="validacionesPassword.mayuscula ? 'currentColor' : 'none'"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>1 mayúscula</span>
-                  </div>
-                  <div
-                    :class="[
-                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
-                      validacionesPassword.numero
-                        ? 'text-green-700 bg-green-50'
-                        : 'text-gray-500'
-                    ]"
-                  >
-                    <svg
-                      class="w-3.5 h-3.5 flex-shrink-0"
-                      :fill="validacionesPassword.numero ? 'currentColor' : 'none'"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>1 número</span>
-                  </div>
-                  <div
-                    :class="[
-                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
-                      validacionesPassword.simbolo
-                        ? 'text-green-700 bg-green-50'
-                        : 'text-gray-500'
-                    ]"
-                  >
-                    <svg
-                      class="w-3.5 h-3.5 flex-shrink-0"
-                      :fill="validacionesPassword.simbolo ? 'currentColor' : 'none'"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>1 símbolo (-, *, @, !, #, $, %, ^, &, +, =)</span>
-                  </div>
-                  <div
-                    :class="[
-                      'flex items-center gap-2 py-1 px-2 rounded text-xs sm:text-sm',
-                      validacionesPassword.coincidencia
-                        ? 'text-green-700 bg-green-50'
-                        : 'text-gray-500'
-                    ]"
-                  >
-                    <svg
-                      class="w-3.5 h-3.5 flex-shrink-0"
-                      :fill="validacionesPassword.coincidencia ? 'currentColor' : 'none'"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Las contraseñas coinciden</span>
-                  </div>
-                </div>
               </div>
             </transition>
           </div>
@@ -442,9 +285,8 @@ const error = ref(null)
 const touched = ref({})
 const errors = ref({})
 const mostrarConfirmacionRestablecer = ref(false)
+const mostrarSeccionRestablecer = ref(false)
 const isRestableciendo = ref(false)
-const mostrarPasswordNueva = ref(false)
-const mostrarConfirmarPassword = ref(false)
 
 const isEditing = computed(() => !!props.usuario?.id)
 
@@ -453,22 +295,9 @@ const formData = ref({
   apellido: '',
   nombreUsuario: '',
   email: '',
-  passwordNueva: '',
-  passwordConfirmar: '',
   rol: '',
   areaId: ''
 })
-
-/**
- * Validaciones de contraseña en tiempo real
- */
-const validacionesPassword = computed(() => ({
-  longitud: formData.value.passwordNueva.length >= 8,
-  mayuscula: /[A-Z]/.test(formData.value.passwordNueva),
-  numero: /[0-9]/.test(formData.value.passwordNueva),
-  simbolo: /[-*@!#$%^&+=]/.test(formData.value.passwordNueva),
-  coincidencia: formData.value.passwordNueva === formData.value.passwordConfirmar && formData.value.passwordNueva !== ''
-}))
 
 /**
  * Obtiene las reglas de validación dinámicamente
@@ -482,13 +311,11 @@ const getValidationRules = () => {
       apellido: { required: false, minLength: 2, maxLength: 100 },
       nombreUsuario: { required: false, minLength: 3, maxLength: 50 },
       email: { required: false, email: true },
-      passwordNueva: { required: false, custom: 'passwordSegura' },
-      passwordConfirmar: { required: false, custom: 'passwordConfirmar' },
       rol: { required: false },
       areaId: { required: false }
     }
   } else {
-    // Al crear: campos requeridos (SIN contraseña - se asigna en backend)
+    // Al crear: campos requeridos
     // areaId es requerido solo si el rol es Gestor (2)
     const areaRequired = formData.value.rol === '2'
     return {
@@ -514,8 +341,6 @@ watch(
         apellido: usuario.apellido || '',
         nombreUsuario: usuario.nombreUsuario || '',
         email: usuario.email || '',
-        passwordNueva: '',
-        passwordConfirmar: '',
         rol: usuario.rol ? getRolId(usuario.rol) : '',
         areaId: usuario.areaId || ''
       }
@@ -525,8 +350,6 @@ watch(
         apellido: '',
         nombreUsuario: '',
         email: '',
-        passwordNueva: '',
-        passwordConfirmar: '',
         rol: '',
         areaId: ''
       }
@@ -534,6 +357,7 @@ watch(
     touched.value = {}
     errors.value = {}
     error.value = null
+    mostrarSeccionRestablecer.value = false
   }
 )
 
@@ -563,26 +387,6 @@ const validarCampo = (fieldName) => {
   // Si es requerido y está vacío
   if (rules.required && (!value || value.toString().trim() === '')) {
     fieldErrors.push('Este campo es requerido')
-  }
-
-  // Validaciones personalizadas para contraseña
-  if (rules.custom === 'passwordSegura' && value && value.toString().trim() !== '') {
-    if (!validacionesPassword.value.longitud) {
-      fieldErrors.push('Mínimo 8 caracteres')
-    }
-    if (!validacionesPassword.value.mayuscula) {
-      fieldErrors.push('Necesita al menos 1 mayúscula')
-    }
-    if (!validacionesPassword.value.numero) {
-      fieldErrors.push('Necesita al menos 1 número')
-    }
-    if (!validacionesPassword.value.simbolo) {
-      fieldErrors.push('Necesita al menos 1 símbolo (-, *, @, !, #, $, %, ^, &, +, =)')
-    }
-  }
-
-  if (rules.custom === 'passwordConfirmar' && formData.value.passwordNueva !== '' && value !== formData.value.passwordNueva) {
-    fieldErrors.push('Las contraseñas no coinciden')
   }
 
   // Solo validar formato/longitud si tiene contenido
@@ -658,11 +462,6 @@ const guardar = async () => {
       if (formData.value.apellido?.trim()) datosActualizar.apellido = formData.value.apellido
       if (formData.value.nombreUsuario?.trim()) datosActualizar.nombreUsuario = formData.value.nombreUsuario
       if (formData.value.email?.trim()) datosActualizar.email = formData.value.email
-      
-      // Si hay nueva contraseña, agregarla (con validaciones ya hechas)
-      if (formData.value.passwordNueva?.trim()) {
-        datosActualizar.password = formData.value.passwordNueva
-      }
       
       if (formData.value.rol) datosActualizar.rol = parseInt(formData.value.rol)
       // areaId puede ser vacío (desasignar área), pero solo enviar si estaba asignado
@@ -742,5 +541,23 @@ const cerrar = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 500px;
 }
 </style>
