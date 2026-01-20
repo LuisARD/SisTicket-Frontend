@@ -283,6 +283,13 @@ src/
 - Verifica que estés logueado como Admin o SuperAdmin
 - Asegúrate que la librería xlsx se instaló correctamente (npm install xlsx)
 
+### CAMBIOS RECIENTES
+- Se agrego boton de notificaciones para roles de gestor, admin, superadmin
+- Se agregaron logs que se registran todo a la BD (No visibles aqui)
+- Se agrego boton para resetear contraseña
+- Se fortalecieron las contraseñas
+- Cambiar contraseña obligatorio con primer login del usuario.
+
 ---
 
 Si necesitas configurar la aplicación para un servidor diferente, edita:
