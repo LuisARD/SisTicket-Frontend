@@ -34,6 +34,9 @@
             </p>
           </div>
 
+          <!-- Notificaciones (Solo Gestores, Admin y SuperAdmin) -->
+          <NotificacionesDropdown v-if="user && ['Gestor', 'Admin', 'SuperAdmin'].includes(user.rol)" />
+
           <!-- Botón Reportes (Solo Admin y SuperAdmin) -->
           <RouterLink
             v-if="user && ['Admin', 'SuperAdmin'].includes(user.rol)"
@@ -93,9 +96,13 @@
 
 <script>
 import { useAuth } from '../composables/useAuth'
+import NotificacionesDropdown from './NotificacionesDropdown.vue'
 
 export default {
   name: 'Navbar',
+  components: {
+    NotificacionesDropdown
+  },
   setup() {
     const { user, logout } = useAuth()
 

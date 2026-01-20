@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
 import authService from '../services/authService'
+import { notificacionService } from '../services/notificacionService'
 
 export const authStore = reactive({
   user: null,
@@ -40,16 +41,22 @@ export const authStore = reactive({
 
   async logout() {
     try {
+      // Desconectar del hub SignalR
+      await notificacionService.desconectar()
+      // Limpiar caché de notificaciones
+      notificacionService.limpiarCache()
       // Llamar al servicio para hacer logout en el servidor
       await authService.logout()
     } catch (err) {
       console.error('Error en logout:', err)
-      // Continuar con la limpieza local incluso si falla la llamada al servidor
+      // Continuar con la limpieza local incluso si falla
     } finally {
       // Limpiar el estado del store en todo caso
       this.user = null
       this.isAuthenticated = false
       this.error = null
+      // Limpiar notificaciones del cache
+      localStorage.removeItem('notificaciones_cache')
     }
   },
 
