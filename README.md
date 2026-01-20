@@ -283,16 +283,18 @@ src/
 - Verifica que estés logueado como Admin o SuperAdmin
 - Asegúrate que la librería xlsx se instaló correctamente (npm install xlsx)
 
-### CAMBIOS RECIENTES
-- Se agrego boton de notificaciones para roles de gestor, admin, superadmin
-- Se agregaron logs que se registran todo a la BD (No visibles aqui)
-- Se agrego boton para resetear contraseña
-- Se fortalecieron las contraseñas
-- Cambiar contraseña obligatorio con primer login del usuario.
-
 ---
 
 Si necesitas configurar la aplicación para un servidor diferente, edita:
 - src/services/api.js - URL base de la API
 
 ---
+### CAMBIOS RECIENTES
+- Se agrego boton de notificaciones para roles de gestor, admin, superadmin
+- Se agregaron logs que se registran todo a la BD (No visibles aqui)
+- Se agrego boton para resetear contraseña
+- Se fortalecieron las contraseñas
+- Cambiar contraseña obligatorio con primer login del usuario.
+- Vista de Reportes con graficos y top gestores.
+- Exportar datos PDF y Excel
+- Validaciones de tamaño y tipo en carga de archivos en solicitudes
