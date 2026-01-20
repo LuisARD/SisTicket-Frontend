@@ -238,7 +238,6 @@ const validarFormulario = () => {
 
 const guardar = async () => {
   if (!validarFormulario()) {
-    console.log('Validación fallida')
     return
   }
 
@@ -270,8 +269,6 @@ const guardar = async () => {
         dataToSend.descripcion = formData.value.descripcion.trim()
       }
     }
-
-    console.log('Enviando datos:', { action: isEditing.value ? 'update' : 'create', tipo: props.tipo, data: dataToSend })
 
     // Ejecutar la operación directamente
     if (isEditing.value) {

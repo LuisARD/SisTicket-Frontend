@@ -20,7 +20,13 @@ export const useLogin = () => {
     try {
       await authStore.login(nombreUsuario, password)
       
-      // Redirigir según el rol del usuario
+      // Si el usuario tiene contraseña temporal, NO redirigir aún
+      // El modal se mostrará y después redirigirá al cambiar la contraseña
+      if (authStore.tienePasswordTemporal === true) {
+        return true
+      }
+      
+      // Redirigir según el rol del usuario solo si NO tiene contraseña temporal
       const rol = authStore.user?.rol
       if (rol === 1 || rol === 'Solicitante') {
         router.push('/mis-solicitudes')

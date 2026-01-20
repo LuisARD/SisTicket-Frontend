@@ -16,7 +16,7 @@
           </h1>
         </div>
 
-        <!-- Info Usuario y Botón -->
+        <!-- Info Usuario y Botones -->
         <div class="flex items-center gap-3 sm:gap-6">
           <div class="text-right hidden sm:block">
             <div class="flex items-center justify-end gap-2 mb-1">
@@ -34,6 +34,40 @@
             </p>
           </div>
 
+          <!-- Notificaciones (Solo Gestores, Admin y SuperAdmin) -->
+          <NotificacionesDropdown v-if="user && ['Gestor', 'Admin', 'SuperAdmin'].includes(user.rol)" />
+
+          <!-- Botón Reportes (Solo Admin y SuperAdmin) -->
+          <RouterLink
+            v-if="user && ['Admin', 'SuperAdmin'].includes(user.rol)"
+            to="/reportes"
+            class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-green-600 border-2 border-green-400 rounded-lg hover:border-green-600 hover:text-green-800 transition"
+            title="Ver reportes"
+          >
+            <svg
+              class="w-4 h-4 sm:w-5 sm:h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <span class="hidden sm:inline">Reportes</span>
+            <span class="sm:hidden">Reportes</span>
+          </RouterLink>
+
+          <!-- Botón Cerrar Sesión -->
           <button
             @click="logout"
             class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-700 border-2 border-gray-400 rounded-lg hover:border-gray-600 hover:text-gray-900 transition"
@@ -62,9 +96,13 @@
 
 <script>
 import { useAuth } from '../composables/useAuth'
+import NotificacionesDropdown from './NotificacionesDropdown.vue'
 
 export default {
   name: 'Navbar',
+  components: {
+    NotificacionesDropdown
+  },
   setup() {
     const { user, logout } = useAuth()
 

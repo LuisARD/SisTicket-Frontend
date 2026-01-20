@@ -283,7 +283,6 @@ const tiposSolicitudOrdenados = computed(() => {
 
 // ===== FUNCIONES DE NOTIFICACIÓN =====
 const mostrarNotificacion = (mensaje, tipo = 'success') => {
-  console.log('Mostrando toast:', { tipo, mensaje })
   // Resetear y mostrar toast
   toast.value = { show: true, type: tipo, message: mensaje }
   // Auto-cerrar después de 4 segundos
@@ -317,9 +316,8 @@ const handleModalAreaSuccess = async () => {
 const eliminarArea = async (id) => {
   if (!puedeEliminar()) return
   
-  // Buscar el nombre del área para debugging
+  // Buscar el nombre del área
   const area = areasOrdenadas.value.find(a => a.id === id)
-  console.log('🗑️ ELIMINANDO ÁREA:', { id, nombre: area?.nombre })
   
   // Verificar si el área está en uso en solicitudes
   if (areaEstaEnUso(id)) {
@@ -335,16 +333,11 @@ const eliminarArea = async (id) => {
   
   loading.value = true
   try {
-    console.log('📤 Enviando DELETE a servidor...')
     const resultado = await deleteArea(id)
-    console.log('📥 Respuesta del servidor:', resultado)
-    console.log('✅ Área eliminada exitosamente')
     await cargarAreas()
     mostrarNotificacion(`Área "${area?.nombre}" eliminada exitosamente`, 'success')
   } catch (error) {
-    console.error('❌ ERROR EN ELIMINAR ÁREA:', error)
-    console.error('Status:', error?.response?.status)
-    console.error('Response data:', error?.response?.data)
+    console.error('Error al eliminar el área:', error)
     
     let mensaje = 'Error al eliminar el área'
     
@@ -359,7 +352,6 @@ const eliminarArea = async (id) => {
       mensaje = error.message
     }
     
-    console.log('📢 Toast a mostrar:', mensaje)
     mostrarNotificacion(mensaje, 'error')
   } finally {
     loading.value = false
@@ -405,14 +397,11 @@ const eliminarPrioridad = async (id) => {
   
   loading.value = true
   try {
-    console.log('Intentando eliminar prioridad:', id)
     await deletePrioridad(id)
-    console.log('Prioridad eliminada exitosamente')
     await cargarPrioridades()
     mostrarNotificacion('Prioridad eliminada exitosamente', 'success')
   } catch (error) {
-    console.error('=== ERROR EN ELIMINAR PRIORIDAD ===')
-    console.error('Error completo:', error)
+    console.error('Error al eliminar la prioridad:', error)
     
     let mensaje = 'Error al eliminar la prioridad'
     
@@ -427,7 +416,6 @@ const eliminarPrioridad = async (id) => {
       mensaje = error.message
     }
     
-    console.log('Mensaje final:', mensaje)
     mostrarNotificacion(mensaje, 'error')
   } finally {
     loading.value = false
@@ -473,14 +461,11 @@ const eliminarTipoSolicitud = async (id) => {
   
   loading.value = true
   try {
-    console.log('Intentando eliminar tipo solicitud:', id)
     await deleteTipoSolicitud(id)
-    console.log('Tipo solicitud eliminado exitosamente')
     await cargarTiposSolicitud()
     mostrarNotificacion('Tipo de solicitud eliminada exitosamente', 'success')
   } catch (error) {
-    console.error('=== ERROR EN ELIMINAR TIPO SOLICITUD ===')
-    console.error('Error completo:', error)
+    console.error('Error al eliminar el tipo de solicitud:', error)
     
     let mensaje = 'Error al eliminar el tipo de solicitud'
     
@@ -495,7 +480,6 @@ const eliminarTipoSolicitud = async (id) => {
       mensaje = error.message
     }
     
-    console.log('Mensaje final:', mensaje)
     mostrarNotificacion(mensaje, 'error')
   } finally {
     loading.value = false

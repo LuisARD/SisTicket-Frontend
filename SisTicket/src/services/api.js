@@ -15,7 +15,6 @@ const api = axios.create({
 // Interceptor de requests
 api.interceptors.request.use(
   config => {
-    console.log('Request:', config.method?.toUpperCase(), config.baseURL + config.url)
     return config
   },
   error => Promise.reject(error)
@@ -24,7 +23,6 @@ api.interceptors.request.use(
 // Interceptor para manejar errores de autenticación
 api.interceptors.response.use(
   response => {
-    console.log('Response:', response.status, response.data)
     return response
   },
   error => {

@@ -105,26 +105,43 @@
             <p v-if="getError('email')" class="text-sm text-red-500 mt-1">{{ getError('email') }}</p>
           </div>
 
-          <!-- Contraseña -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Contraseña
-              <span v-if="!isEditing" class="text-red-500">*</span>
-              <span v-else class="text-gray-500 text-xs">(Dejar vacío para no cambiar)</span>
-            </label>
-            <input
-              v-model="formData.password"
-              type="password"
-              :placeholder="isEditing ? 'Dejar vacío para mantener la actual' : 'Mínimo 6 caracteres'"
-              @blur="validarCampo('password')"
-              :class="[
-                'w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition',
-                hasError('password')
-                  ? 'border-red-500 focus:border-red-600'
-                  : 'border-gray-300 focus:border-indigo-600'
-              ]"
-            />
-            <p v-if="getError('password')" class="text-sm text-red-500 mt-1">{{ getError('password') }}</p>
+          <!-- Restablecer Contraseña (Solo en edición - Expandible) -->
+          <div v-if="isEditing" class="border-t-2 border-gray-200 pt-4 mt-4">
+            <button
+              type="button"
+              @click="mostrarSeccionRestablecer = !mostrarSeccionRestablecer"
+              class="w-full flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition border border-orange-200"
+            >
+              <span class="text-sm sm:text-base font-medium text-orange-800">Restablecer Contraseña</span>
+              <svg 
+                :class="['w-5 h-5 text-orange-600 transition-transform', mostrarSeccionRestablecer ? 'rotate-180' : '']"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </button>
+
+            <!-- Contenido expandible -->
+            <transition name="expand">
+              <div v-if="mostrarSeccionRestablecer" class="mt-3 p-4 bg-orange-50 rounded-lg border border-orange-200 space-y-3">
+                <p class="text-sm text-orange-800">
+                  Restablece la contraseña del usuario a la contraseña por defecto. El usuario deberá cambiarla en su próximo inicio de sesión.
+                </p>
+                <button
+                  type="button"
+                  @click="mostrarConfirmacionRestablecer = true"
+                  :disabled="isSubmitting || isRestableciendo"
+                  class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Restablecer Contraseña</span>
+                </button>
+              </div>
+            </transition>
           </div>
 
           <!-- Rol -->
@@ -177,23 +194,65 @@
           </div>
 
           <!-- Botones -->
-          <div class="flex gap-3 pt-4">
+          <div class="flex flex-col-reverse sm:flex-row gap-3 pt-6">
             <button
               type="button"
               @click="cerrar"
-              class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition"
+              class="flex-1 px-4 py-2.5 sm:py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition text-sm sm:text-base"
             >
               Cancelar
             </button>
             <button
               type="submit"
               :disabled="isSubmitting"
-              class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition"
+              class="flex-1 px-4 py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition text-sm sm:text-base"
             >
               {{ isSubmitting ? '⏳ Guardando...' : isEditing ? 'Actualizar' : 'Crear' }}
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </Transition>
+
+  <!-- Modal de Confirmación para Restablecer Contraseña -->
+  <Transition name="fade">
+    <div v-if="mostrarConfirmacionRestablecer" class="fixed inset-0 bg-gray-400 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-4">
+          <h3 class="text-lg font-bold">Restablecer Contraseña</h3>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 space-y-4">
+          <p class="text-gray-700">
+            ¿Estás seguro de que deseas restablecer la contraseña de <strong>{{ props.usuario?.nombre }} {{ props.usuario?.apellido }}</strong> a la contraseña por defecto?
+          </p>
+          <p class="text-sm text-gray-500">
+            El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex flex-col-reverse sm:flex-row gap-3">
+          <button
+            type="button"
+            @click="mostrarConfirmacionRestablecer = false"
+            :disabled="isRestableciendo"
+            class="flex-1 px-4 py-2.5 bg-gray-300 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed text-gray-800 font-semibold rounded-lg transition text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            @click="restablecerPassword"
+            :disabled="isRestableciendo"
+            class="flex-1 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition text-sm"
+          >
+            {{ isRestableciendo ? 'Restableciendo...' : 'Sí, Restablecer' }}
+          </button>
+        </div>
       </div>
     </div>
   </Transition>
@@ -225,6 +284,9 @@ const isSubmitting = ref(false)
 const error = ref(null)
 const touched = ref({})
 const errors = ref({})
+const mostrarConfirmacionRestablecer = ref(false)
+const mostrarSeccionRestablecer = ref(false)
+const isRestableciendo = ref(false)
 
 const isEditing = computed(() => !!props.usuario?.id)
 
@@ -233,7 +295,6 @@ const formData = ref({
   apellido: '',
   nombreUsuario: '',
   email: '',
-  password: '',
   rol: '',
   areaId: ''
 })
@@ -250,7 +311,6 @@ const getValidationRules = () => {
       apellido: { required: false, minLength: 2, maxLength: 100 },
       nombreUsuario: { required: false, minLength: 3, maxLength: 50 },
       email: { required: false, email: true },
-      password: { required: false, minLength: 6 },
       rol: { required: false },
       areaId: { required: false }
     }
@@ -263,7 +323,6 @@ const getValidationRules = () => {
       apellido: { required: true, minLength: 2, maxLength: 100 },
       nombreUsuario: { required: true, minLength: 3, maxLength: 50 },
       email: { required: true, email: true },
-      password: { required: true, minLength: 6 },
       rol: { required: true },
       areaId: { required: areaRequired }
     }
@@ -282,7 +341,6 @@ watch(
         apellido: usuario.apellido || '',
         nombreUsuario: usuario.nombreUsuario || '',
         email: usuario.email || '',
-        password: '',
         rol: usuario.rol ? getRolId(usuario.rol) : '',
         areaId: usuario.areaId || ''
       }
@@ -292,7 +350,6 @@ watch(
         apellido: '',
         nombreUsuario: '',
         email: '',
-        password: '',
         rol: '',
         areaId: ''
       }
@@ -300,6 +357,7 @@ watch(
     touched.value = {}
     errors.value = {}
     error.value = null
+    mostrarSeccionRestablecer.value = false
   }
 )
 
@@ -389,7 +447,6 @@ const hasError = (fieldName) => {
  */
 const guardar = async () => {
   if (!validarFormulario()) {
-    console.log('Errores de validación:', errors.value)
     return
   }
 
@@ -405,27 +462,24 @@ const guardar = async () => {
       if (formData.value.apellido?.trim()) datosActualizar.apellido = formData.value.apellido
       if (formData.value.nombreUsuario?.trim()) datosActualizar.nombreUsuario = formData.value.nombreUsuario
       if (formData.value.email?.trim()) datosActualizar.email = formData.value.email
-      if (formData.value.password?.trim()) datosActualizar.password = formData.value.password
+      
       if (formData.value.rol) datosActualizar.rol = parseInt(formData.value.rol)
       // areaId puede ser vacío (desasignar área), pero solo enviar si estaba asignado
       if (formData.value.areaId) datosActualizar.areaId = parseInt(formData.value.areaId)
 
-      console.log('Datos a actualizar:', datosActualizar)
       await usuariosService.updateUsuario(props.usuario.id, datosActualizar)
       emit('success', { action: 'update', data: datosActualizar })
     } else {
-      // Crear: enviar todos los datos requeridos
+      // Crear: enviar todos los datos requeridos (SIN contraseña - se asigna "Password@88" en backend)
       const datosCrear = {
         nombre: formData.value.nombre,
         apellido: formData.value.apellido,
         nombreUsuario: formData.value.nombreUsuario,
         email: formData.value.email,
-        password: formData.value.password,
         rol: parseInt(formData.value.rol),
         ...(formData.value.areaId && { areaId: parseInt(formData.value.areaId) })
       }
 
-      console.log('Datos a crear:', datosCrear)
       await usuariosService.createUsuario(datosCrear)
       emit('success', { action: 'create', data: datosCrear })
     }
@@ -436,6 +490,37 @@ const guardar = async () => {
     error.value = err.message || (isEditing.value ? 'Error al actualizar el usuario' : 'Error al crear el usuario')
   } finally {
     isSubmitting.value = false
+  }
+}
+
+/**
+ * Restablece la contraseña del usuario
+ */
+const restablecerPassword = async () => {
+  try {
+    isRestableciendo.value = true
+    error.value = null
+    
+    await usuariosService.restablecerPassword(props.usuario.id)
+    
+    // Cerrar modal de confirmación
+    mostrarConfirmacionRestablecer.value = false
+    
+    // Mostrar éxito
+    emit('success', { 
+      action: 'restablecer-password', 
+      data: { 
+        usuarioId: props.usuario.id,
+        mensaje: 'Contraseña restablecida a Password@88'
+      }
+    })
+    
+    cerrar()
+  } catch (err) {
+    console.error('[UsuarioModal] Error al restablecer contraseña:', err)
+    error.value = err.message || 'Error al restablecer la contraseña'
+  } finally {
+    isRestableciendo.value = false
   }
 }
 
@@ -456,5 +541,23 @@ const cerrar = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 500px;
 }
 </style>

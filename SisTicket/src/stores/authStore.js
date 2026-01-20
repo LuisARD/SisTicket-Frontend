@@ -1,19 +1,19 @@
 import { reactive } from 'vue'
 import authService from '../services/authService'
+import { notificacionService } from '../services/notificacionService'
 
 export const authStore = reactive({
   user: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  tienePasswordTemporal: false,
 
   async login(nombreUsuario, password) {
     this.isLoading = true
     this.error = null
     try {
-      console.log('Iniciando login...')
       const data = await authService.login(nombreUsuario, password)
-      console.log('Datos de usuario recibidos:', data)
       this.user = {
         id: data.id,
         nombreUsuario: data.nombreUsuario,
@@ -23,10 +23,12 @@ export const authStore = reactive({
         rol: data.rol,
         area: data.area,
         areaId: data.areaId,
-        token: data.token
+        token: data.token,
+        tienePasswordTemporal: data.tienePasswordTemporal || false
       }
       this.isAuthenticated = true
-      console.log('Estado del store actualizado:', this.user)
+      // Guardar el flag de password temporal
+      this.tienePasswordTemporal = data.tienePasswordTemporal || false
       return data
     } catch (err) {
       this.error = err.response?.data?.message || 'Error al iniciar sesión'
@@ -39,16 +41,22 @@ export const authStore = reactive({
 
   async logout() {
     try {
+      // Desconectar del hub SignalR
+      await notificacionService.desconectar()
+      // Limpiar caché de notificaciones
+      notificacionService.limpiarCache()
       // Llamar al servicio para hacer logout en el servidor
       await authService.logout()
     } catch (err) {
       console.error('Error en logout:', err)
-      // Continuar con la limpieza local incluso si falla la llamada al servidor
+      // Continuar con la limpieza local incluso si falla
     } finally {
       // Limpiar el estado del store en todo caso
       this.user = null
       this.isAuthenticated = false
       this.error = null
+      // Limpiar notificaciones del cache
+      localStorage.removeItem('notificaciones_cache')
     }
   },
 

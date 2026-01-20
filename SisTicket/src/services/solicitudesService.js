@@ -14,7 +14,6 @@ const solicitudesService = {
       const url = queryString ? `/Solicitudes/filtrar?${queryString}` : '/Solicitudes'
 
       const response = await api.get(url)
-      console.log('Solicitudes obtenidas:', response.data)
       return response.data
     } catch (error) {
       console.error('Error obteniendo solicitudes:', error.message)
@@ -55,7 +54,6 @@ const solicitudesService = {
   deleteSolicitud: async (id) => {
     try {
       await api.delete(`/Solicitudes/${id}`)
-      console.log('Solicitud eliminada')
     } catch (error) {
       console.error('Error eliminando solicitud:', error.message)
       throw error
@@ -155,7 +153,6 @@ const solicitudesService = {
       const url = queryString ? `/Solicitudes/mis-solicitudes?${queryString}` : '/Solicitudes/mis-solicitudes'
 
       const response = await api.get(url)
-      console.log('Mis solicitudes obtenidas:', response.data)
       return response.data
     } catch (error) {
       console.error('Error obteniendo mis solicitudes:', error.message)

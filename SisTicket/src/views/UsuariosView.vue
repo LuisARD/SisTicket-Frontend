@@ -365,7 +365,6 @@ const tieneActividadActiva = (usuarioId, rolUsuario) => {
     return mismoGestor && estadoActivo
   })
   
-  console.log(`Validando gestor ${usuarioId}: ${solicitudesActivas.length} solicitudes activas encontradas`)
   return solicitudesActivas.length > 0
 }
 
@@ -404,7 +403,6 @@ const toast = ref({
  * Muestra un toast de notificación
  */
 const mostrarToast = (mensaje, tipo = 'success') => {
-  console.log('Toast:', { tipo, mensaje })
   toast.value = { show: true, type: tipo, message: mensaje }
   setTimeout(() => {
     toast.value.show = false

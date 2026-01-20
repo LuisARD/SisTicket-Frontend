@@ -140,6 +140,43 @@ export const usuariosService = {
       console.error('Error cambiarEstado:', error)
       throw new Error(error.response?.data?.message || 'Error al cambiar el estado del usuario')
     }
+  },
+
+  /**
+   * Cambia la contraseña del usuario actual
+   * @param {Object} datos - Objeto con las contraseñas
+   * @param {string} datos.passwordActual - Contraseña actual del usuario
+   * @param {string} datos.passwordNueva - Nueva contraseña
+   * @param {string} datos.confirmarPassword - Confirmación de la nueva contraseña
+   * @returns {Promise}
+   */
+  async cambiarMiPassword({ passwordActual, passwordNueva, confirmarPassword }) {
+    try {
+      const response = await apiClient.post('/Usuarios/cambiar-mi-password', {
+        passwordActual,
+        passwordNueva,
+        confirmarPassword
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error cambiarMiPassword:', error)
+      throw error
+    }
+  },
+
+  /**
+   * Restablece la contraseña de un usuario a la contraseña por defecto
+   * @param {number} id - ID del usuario
+   * @returns {Promise}
+   */
+  async restablecerPassword(id) {
+    try {
+      const response = await apiClient.post(`/Usuarios/${id}/restablecer-password`)
+      return response.data
+    } catch (error) {
+      console.error('Error restablecerPassword:', error)
+      throw new Error(error.response?.data?.message || 'Error al restablecer la contraseña')
+    }
   }
 }
 

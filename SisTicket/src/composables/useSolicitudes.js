@@ -26,7 +26,6 @@ export const useSolicitudes = () => {
     try {
       const data = await solicitudesService.getSolicitudes()
       solicitudes.value = Array.isArray(data) ? data : []
-      console.log('Solicitudes cargadas:', solicitudes.value.length)
     } catch (error) {
       console.error('Error al cargar solicitudes:', error)
       solicitudes.value = []
@@ -47,7 +46,6 @@ export const useSolicitudes = () => {
       }
       const data = await solicitudesService.getSolicitudes(filtrosNormalizados)
       solicitudes.value = Array.isArray(data) ? data : []
-      console.log('Solicitudes después de filtros:', solicitudes.value.length)
     } catch (error) {
       console.error('Error al filtrar:', error)
       solicitudes.value = []
@@ -84,8 +82,6 @@ export const useSolicitudes = () => {
   })
 
   const estadisticas = computed(() => {
-    console.log('Recalculando estadísticas con', solicitudes.value.length, 'solicitudes')
-    
     const stats = {
       total: solicitudes.value.length,
       nuevas: 0,
@@ -96,7 +92,6 @@ export const useSolicitudes = () => {
 
     solicitudes.value.forEach((s) => {
       const estado = mapearEstadoANumero(s.estado)
-      console.log('Solicitud', s.numeroSolicitud, 'Estado original:', s.estado, 'Mapeado:', estado)
       
       if (estado === 1) stats.nuevas++
       else if (estado === 2) stats.enProceso++
@@ -104,7 +99,6 @@ export const useSolicitudes = () => {
       else if (estado === 5) stats.cerradas++
     })
 
-    console.log('Estadísticas calculadas:', stats)
     return stats
   })
 

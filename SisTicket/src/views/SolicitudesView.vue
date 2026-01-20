@@ -98,17 +98,6 @@
           >
             Limpiar
           </button>
-          <button
-            v-if="esAdminOSuperAdmin"
-            @click="exportarExcel"
-            :disabled="isLoading"
-            class="flex-1 sm:flex-initial px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold rounded-lg transition text-sm sm:text-base flex items-center justify-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Descargar Excel
-          </button>
         </div>
       </div>
 
@@ -153,7 +142,6 @@ import { useSolicitudes } from '../composables/useSolicitudes'
 import { useCatalogos } from '../composables/useCatalogos'
 import { onMounted, computed } from 'vue'
 import { authStore } from '../stores/authStore'
-import { exportarSolicitudesAExcel } from '../services/excelExportService'
 
 export default {
   name: 'SolicitudesView',
@@ -182,15 +170,6 @@ export default {
       return rol === 'Admin' || rol === 'SuperAdmin' || rol === 3 || rol === 4
     })
 
-    const exportarExcel = () => {
-      try {
-        exportarSolicitudesAExcel(solicitudes.value)
-      } catch (error) {
-        console.error('Error al exportar:', error)
-        alert('Error al exportar solicitudes: ' + error.message)
-      }
-    }
-
     onMounted(() => {
       cargarAreas()
     })
@@ -204,8 +183,7 @@ export default {
       aplicarFiltros,
       limpiarFiltros,
       areas,
-      esAdminOSuperAdmin,
-      exportarExcel
+      esAdminOSuperAdmin
     }
   }
 }
