@@ -298,3 +298,4 @@ Si necesitas configurar la aplicación para un servidor diferente, edita:
 - Vista de Reportes con graficos y top gestores.
 - Exportar datos PDF y Excel
 - Validaciones de tamaño y tipo en carga de archivos en solicitudes
+- Contraseña por Default: "Password@88"
